@@ -17,11 +17,19 @@
 
 ## 项目截图
 
+以下截图来自实际本地运行效果，而不是在线自动抓图：
 
+![甲方墓园实际运行截图](assets/readme/user-gallery.jpg)
+
+## 在线体验
+
+在线体验：<https://yufan-22.github.io/client-graveyard/>
+
+> 说明：在线体验受 GitHub Pages、浏览器缩放比例、本地缓存数据状态和设备性能影响，显示效果可能会比本地预览版或单文件演示版略差一些；如需更稳定的完整体验，建议优先使用本地版。
 
 ## 功能
 
-- 🪦 像素墓园
+- 🪦 像素墓园：桌面端每行 4 块墓碑，手机端每行 2 块
 - 📝 甲方档案：姓名/代号、特质、立碑日期、墓志铭、墓碑皮肤
 - 📜 往事时间轴：支持无限添加、编辑、删除合作事件
 - 🕯️ 上香：像素蜡烛、烟雾、随机复盘文案
@@ -38,21 +46,6 @@
 - 💾 JSON 导入、导出、清空与旧版数据迁移
 - 🔒 无账号、无服务器、无第三方统计
 
-
-
-本项目是纯静态 HTML / CSS / JavaScript，不需要构建步骤，适合直接部署到 GitHub Pages。
-
-在仓库中打开：
-
-**Settings → Pages → Build and deployment → Deploy from a branch**
-
-选择：
-
-- Branch：`main`
-- Folder：`/ (root)`
-
-保存后等待 GitHub 生成公开地址。
-
 ## 本地使用
 
 下载整个仓库后直接打开 `index.html` 即可。
@@ -64,6 +57,21 @@ python -m http.server 8080
 ```
 
 然后访问 `http://localhost:8080`。
+
+## 发布到 GitHub Pages
+
+本项目是纯静态 HTML / CSS / JavaScript，不需要构建步骤。
+
+在仓库中打开：
+
+**Settings → Pages → Build and deployment → Deploy from a branch**
+
+选择：
+
+- Branch：`main`
+- Folder：`/ (root)`
+
+保存后等待 GitHub 生成公开地址。
 
 ## 项目结构
 
@@ -83,6 +91,9 @@ client-graveyard/
 │  ├─ graveyard.js
 │  ├─ profile.js
 │  └─ app.js
+├─ assets/
+│  └─ readme/
+│     └─ user-gallery.jpg
 ├─ demo-data.json
 ├─ .nojekyll
 ├─ LICENSE
