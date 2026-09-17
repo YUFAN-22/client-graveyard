@@ -1,9 +1,17 @@
 # 乙方守墓园 · Client Graveyard
 
 > **Bury the project. Keep the lesson.**  
-> 一个给乙方使用的本地像素 Web App：记录甲方合作经历、项目教训与情绪复盘。
+> 一个给乙方用的像素风项目复盘、情绪释放和解压小游戏。
 
-**乙方守墓园（甲方墓园 / Client Graveyard）** 把一次次“难忘合作”变成可浏览的像素墓碑：记录甲方特质、合作事件和项目教训；想放下时可以上一炷香，想发泄时可以扔一个 💩。核心数据默认只保存在用户自己的浏览器里。
+乙方守墓园（甲方墓园 / Client Graveyard）把一次次“难忘合作”变成可浏览的像素墓碑：记录甲方特质、合作事件和项目教训；想放下时可以上一炷香，想发泄时可以扔一个 💩。核心数据默认只保存在用户自己的浏览器里。
+
+**中文关键词：乙方发泄 · 乙方解压 · 乙方小游戏 · 甲方墓园 · 项目复盘 · 情绪释放 · 职场解压**
+
+## Topics / Tags
+
+`js` · `game` · `webapp` · `web-application` · `web-app` · `localstorage` · `pixel-art` · `browser-game` · `retro-game` · `retro-games`
+
+> GitHub Topics 本身只支持小写字母、数字和连字符，因此“乙方发泄 / 乙方解压 / 乙方小游戏”放在 README 与项目描述中用于中文搜索；Topics 使用对应的英文分类词。
 
 ## 当前版本
 
