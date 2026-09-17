@@ -77,13 +77,13 @@
   }
   function saveClients(clients){return writeItem(DATA_KEY,JSON.stringify(clients.map(normalizeClient)))}
   function loadSettings(){
-    return Object.assign({noticeSeen:false,theme:'auto',weather:'fog',sound:false,selectedTrait:'',search:'',demoLoaded:false},safeJSON(readItem(SETTINGS_KEY),{}));
+    return Object.assign({noticeSeen:false,theme:'auto',weather:'fog',sound:false,selectedTrait:'',search:'',demoLoaded:false,heroLead:'有些项目结束了'},safeJSON(readItem(SETTINGS_KEY),{}));
   }
   function saveSettings(settings){return writeItem(SETTINGS_KEY,JSON.stringify(settings))}
   function loadMeta(){return Object.assign({unlocked:[],rapidPoop:[],createdCount:0,lastDailyKey:''},safeJSON(readItem(META_KEY),{}))}
   function saveMeta(meta){return writeItem(META_KEY,JSON.stringify(meta))}
   function exportPayload(clients,settings,meta){
-    return {app:'Client Graveyard',version:3,exportedAt:new Date().toISOString(),clients:clients.map(normalizeClient),settings:{theme:settings.theme,weather:settings.weather},meta:{unlocked:meta.unlocked||[]}};
+    return {app:'Client Graveyard',version:3,exportedAt:new Date().toISOString(),clients:clients.map(normalizeClient),settings:{theme:settings.theme,weather:settings.weather,heroLead:settings.heroLead},meta:{unlocked:meta.unlocked||[]}};
   }
   function parseImport(text){
     const parsed=JSON.parse(text);
