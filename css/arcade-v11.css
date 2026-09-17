@@ -1,5 +1,12 @@
 /* Arcade Pixel v1.1 final visual overrides */
 :root{--arcade-black:#090a0f;--arcade-yellow:#ffd83d;--arcade-purple:#7651ff;--arcade-red:#ff455f;--arcade-green:#68dc65}
 body{background:#0c1014}.site-header,.modal-panel,.profile-hero,.timeline-section,.stats-panel,.today-card,.search-box{image-rendering:pixelated}.grave-grid{align-items:end}.grave-plot{align-self:end}.grave-stage{display:flex;align-items:flex-end;justify-content:center}.grave-stone{flex:0 0 auto;transform-origin:bottom center}.grave-name{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;font-weight:900;letter-spacing:.02em}.grave-traits{align-items:center}.stone-trait{font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif}.grave-actions .pixel-btn{min-width:92px}.arcade-stage-hud b{color:#fff;letter-spacing:.14em}.arcade-stage-hud em{font-style:normal;color:var(--arcade-green)}.modal-panel{border-radius:0}.builder-preview{box-shadow:6px 6px 0 #000}.profile-info h1{color:#fff;text-shadow:5px 5px 0 #000}.timeline-card{border-radius:0}.achievement,.stat-card{border-radius:0}
-@media(max-width:760px){.grave-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.grave-name{font-size:clamp(18px,5vw,22px)}.stone-trait{font-size:10px}.arcade-stage-hud{font-size:8px}.arcade-stage-hud em{display:none}.grave-actions .pixel-btn{min-width:0}}
-@media(max-width:390px){.grave-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.grave-name{font-size:18px}.stone-trait{font-size:9px}}
+
+/* Slab gravestone: reserve a fixed lower HUD area so counters never collide with the date. */
+.grave-stone.skin-slab{height:198px;padding-top:42px;padding-bottom:42px}
+.grave-stone.skin-slab .grave-traits{margin-top:8px;min-height:32px}
+.grave-stone.skin-slab .grave-counts{position:absolute;left:12px;right:12px;bottom:29px;margin:0;gap:12px}
+.grave-stone.skin-slab .grave-date{bottom:10px}
+
+@media(max-width:760px){.grave-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.grave-name{font-size:clamp(18px,5vw,22px)}.stone-trait{font-size:10px}.arcade-stage-hud{font-size:8px}.arcade-stage-hud em{display:none}.grave-actions .pixel-btn{min-width:0}.grave-stone.skin-slab{height:158px;padding-top:34px;padding-bottom:34px}.grave-stone.skin-slab .grave-traits{margin-top:6px;min-height:28px}.grave-stone.skin-slab .grave-counts{left:7px;right:7px;bottom:25px;gap:6px}.grave-stone.skin-slab .grave-date{bottom:8px}}
+@media(max-width:390px){.grave-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.grave-name{font-size:18px}.stone-trait{font-size:9px}.grave-stone.skin-slab{height:151px;padding-top:32px;padding-bottom:32px}.grave-stone.skin-slab .grave-counts{bottom:23px}.grave-stone.skin-slab .grave-date{bottom:7px}}
