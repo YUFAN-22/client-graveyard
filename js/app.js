@@ -17,6 +17,19 @@
     const g=$('#hudGraves'),i=$('#hudIncense'),p=$('#hudPoop');
     if(g)g.textContent=String(graves).padStart(2,'0');if(i)i.textContent=String(incense).padStart(3,'0');if(p)p.textContent=String(poop).padStart(3,'0');
   }
+  function applyHeroLead(){
+    const lead=$('#heroLead');
+    if(lead)lead.textContent=(state.settings.heroLead||'有些项目结束了').trim()||'有些项目结束了';
+  }
+  function openHeroLeadEditor(){
+    const box=$('#heroLeadEditor'),input=$('#heroLeadInput');if(!box||!input)return;
+    input.value=(state.settings.heroLead||'有些项目结束了').trim()||'有些项目结束了';box.hidden=false;setTimeout(()=>{input.focus();input.select()},20);
+  }
+  function closeHeroLeadEditor(){const box=$('#heroLeadEditor');if(box)box.hidden=true}
+  function saveHeroLead(){
+    const input=$('#heroLeadInput');if(!input)return;const value=input.value.trim().slice(0,24)||'有些项目结束了';
+    state.settings.heroLead=value;CGStorage.saveSettings(state.settings);applyHeroLead();closeHeroLeadEditor();toast('标语已更新','只保存在当前浏览器。');
+  }
   function parseRoute(){const raw=(location.hash||'#graveyard').slice(1);if(raw.startsWith('client/'))return ['profile',decodeURIComponent(raw.split('/')[1]||'')];if(raw==='stats')return ['stats',null];return ['graveyard',null]}
   function renderRoute(){
     updateHud();
@@ -83,7 +96,7 @@
     const action=t.dataset.action;
     if(!action&&t.matches('.grave-stone')){const id=t.dataset.clientStone;if(id)location.hash=`#client/${encodeURIComponent(id)}`;return}
     switch(action){
-      case'new-client':openClientEditor();break;case'close-client':closeModal('#clientModal');break;case'close-event':closeModal('#eventModal');break;case'open-data':openModal('#dataModal');break;case'close-data':closeModal('#dataModal');break;
+      case'new-client':openClientEditor();break;case'edit-hero-lead':openHeroLeadEditor();break;case'save-hero-lead':saveHeroLead();break;case'cancel-hero-lead':closeHeroLeadEditor();break;case'close-client':closeModal('#clientModal');break;case'close-event':closeModal('#eventModal');break;case'open-data':openModal('#dataModal');break;case'close-data':closeModal('#dataModal');break;
       case'add-trait':{const v=$('#customTrait').value.trim();if(v){const selected=selectedTraits();if(!selected.includes(v))selected.push(v);renderTraitPicker(selected);$('#customTrait').value='';renderClientPreview()}break}
       case'random-epitaph':$('#epitaph').value=CGContent.EPITAPHS[Math.floor(Math.random()*CGContent.EPITAPHS.length)];renderClientPreview();break;
       case'add-event-row':$('#eventRows').appendChild(CGContent.makeEventRow({date:CGUtils.today(),type:'其他'}));break;case'remove-event-row':t.closest('.event-row')?.remove();break;
@@ -99,10 +112,11 @@
 
   function init(){
     state.clients=CGStorage.loadClients();state.settings=CGStorage.loadSettings();state.meta=CGStorage.loadMeta();
-    applyScene();$('#searchInput').value=state.settings.search||'';$('#eventType').innerHTML=CGContent.typeOptions();
+    applyScene();applyHeroLead();$('#searchInput').value=state.settings.search||'';$('#eventType').innerHTML=CGContent.typeOptions();
     document.addEventListener('click',handleClick);window.addEventListener('hashchange',renderRoute);$('#clientForm').addEventListener('submit',saveClientForm);$('#singleEventForm').addEventListener('submit',saveSingleEvent);
     $('#searchInput').addEventListener('input',e=>{state.settings.search=e.target.value;CGStorage.saveSettings(state.settings);CGGraveyard.render(state)});$('#themeSelect').addEventListener('change',e=>{state.settings.theme=e.target.value;save();applyScene()});$('#weatherSelect').addEventListener('change',e=>{state.settings.weather=e.target.value;save();applyScene()});$('#importFile').addEventListener('change',e=>importData(e.target.files[0]));
     ['clientName','burialDate','stoneSkin'].forEach(id=>$('#'+id)?.addEventListener('input',renderClientPreview));$('#stoneSkin')?.addEventListener('change',renderClientPreview);
+    $('#heroLeadInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveHeroLead()}else if(e.key==='Escape'){e.preventDefault();closeHeroLeadEditor()}});
     $('#confirmYes').addEventListener('click',()=>{const fn=state.confirmAction;state.confirmAction=null;closeModal('#confirmModal');if(fn)fn()});
     $$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m&&m.id!=='onboardingModal')closeModal('#'+m.id)}));
     document.addEventListener('keydown',e=>{if(e.key==='Escape'){const m=$('.modal.open:not(#onboardingModal)');if(m)closeModal('#'+m.id)}});
