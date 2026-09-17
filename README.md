@@ -17,16 +17,7 @@
 
 ## 项目截图
 
-### 首页 / 今日祭扫
 
-[![甲方墓园首页]((./home.png))
-
-
-### 墓园管理局
-
-[![墓园管理局](https://s0.wp.com/mshots/v1/https%3A%2F%2Fyufan-22.github.io%2Fclient-graveyard%2F%23stats?w=1400)](https://yufan-22.github.io/client-graveyard/#stats)
-
-> 截图由在线页面动态生成，因此会随当前版本同步更新。
 
 ## 功能
 
@@ -47,9 +38,7 @@
 - 💾 JSON 导入、导出、清空与旧版数据迁移
 - 🔒 无账号、无服务器、无第三方统计
 
-## 在线部署
 
-在线体验：<https://yufan-22.github.io/client-graveyard/>
 
 本项目是纯静态 HTML / CSS / JavaScript，不需要构建步骤，适合直接部署到 GitHub Pages。
 
