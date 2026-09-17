@@ -19,11 +19,8 @@
 
 ### 首页 / 今日祭扫
 
-[![甲方墓园首页](https://s0.wp.com/mshots/v1/https%3A%2F%2Fyufan-22.github.io%2Fclient-graveyard%2F?w=1400)](https://yufan-22.github.io/client-graveyard/)
+[![甲方墓园首页]((./home.png))
 
-### 墓园选择
-
-[![墓园选择界面](https://s0.wp.com/mshots/v1/https%3A%2F%2Fyufan-22.github.io%2Fclient-graveyard%2F%23graveyard?w=1400)](https://yufan-22.github.io/client-graveyard/#graveyard)
 
 ### 墓园管理局
 
