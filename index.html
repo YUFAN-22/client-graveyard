@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="甲方墓园 Client Graveyard：一个用于项目复盘、情绪释放和记录合作教训的本地像素 Web App。">
+  <meta name="theme-color" content="#11131f">
+  <title>甲方墓园 · Client Graveyard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/pixel.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/arcade-v11.css">
+  <script defer src="js/storage.js"></script>
+  <script defer src="js/events.js"></script>
+  <script defer src="js/animations.js"></script>
+  <script defer src="js/achievements.js"></script>
+  <script defer src="js/graveyard.js"></script>
+  <script defer src="js/profile.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body data-theme="night" data-weather="fog">
+  <div id="weatherLayer" class="weather-layer" aria-hidden="true">
+    <div class="stars"></div>
+    <div class="moon"></div>
+    <div class="fog fog-a"></div>
+    <div class="fog fog-b"></div>
+    <div class="rain"></div>
+  </div>
+
+  <header class="site-header">
+    <a class="brand" href="#graveyard" aria-label="返回甲方墓园">
+      <span class="brand-mark" aria-hidden="true"><i></i></span>
+      <span class="brand-copy">
+        <strong>甲方墓园</strong>
+        <small>CLIENT GRAVEYARD // LOCAL MODE</small>
+      </span>
+    </a>
+    <div class="hud-counters" aria-label="墓园统计">
+      <span><b id="hudGraves">00</b><small>GRAVES</small></span>
+      <span><b id="hudIncense">000</b><small>INCENSE</small></span>
+      <span><b id="hudPoop">000</b><small>ANGER</small></span>
+    </div>
+    <nav class="top-actions" aria-label="主要功能">
+      <button class="pixel-btn primary" data-action="new-client">＋ 新建墓碑</button>
+      <a class="pixel-btn" href="#stats">墓园管理局</a>
+      <button class="pixel-btn icon-only" data-action="open-data" title="数据管理" aria-label="数据管理">▣</button>
+      <button class="pixel-btn icon-only" data-action="toggle-sound" title="环境音" aria-label="切换环境音">♪</button>
+    </nav>
+  </header>
+
+  <main id="app" class="app-shell">
+    <section id="graveyardView" class="view" data-view="graveyard">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">LOCAL · PRIVATE · PIXEL MEMORIAL</p>
+          <h1>有些项目结束了，<br><span>有些甲方值得立块碑。</span></h1>
+          <p>埋葬糟糕项目，留下宝贵教训。所有记录默认只存在你的浏览器里。</p>
+        </div>
+        <aside id="todayMemorial" class="today-card" aria-live="polite"></aside>
+      </div>
+
+      <div class="cemetery-toolbar">
+        <label class="search-box">
+          <span class="search-label">SEARCH</span>
+          <span class="search-prefix">&gt;</span>
+          <input id="searchInput" type="search" placeholder="输入甲方、特质或往事…" autocomplete="off">
+        </label>
+        <div id="filterChips" class="filter-chips" aria-label="特质筛选"></div>
+        <div class="scene-controls">
+          <label>天色
+            <select id="themeSelect">
+              <option value="auto">自动</option>
+              <option value="day">白昼</option>
+              <option value="night">夜晚</option>
+            </select>
+          </label>
+          <label>天气
+            <select id="weatherSelect">
+              <option value="clear">晴</option>
+              <option value="fog">雾</option>
+              <option value="rain">雨</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <section class="graveyard-scene" aria-label="甲方墓园">
+        <div class="arcade-stage-hud" aria-hidden="true"><span>STAGE 01</span><b>GRAVEYARD SELECT</b><em>▶ CHOOSE A MEMORY</em></div>
+        <div class="pixel-hill hill-back"></div>
+        <div class="dead-tree tree-left" aria-hidden="true"><i></i><b></b></div>
+        <div class="dead-tree tree-right" aria-hidden="true"><i></i><b></b></div>
+        <div class="fence fence-left" aria-hidden="true"></div>
+        <div class="fence fence-right" aria-hidden="true"></div>
+        <div id="graveGrid" class="grave-grid"></div>
+        <div id="emptyState" class="empty-state" hidden>
+          <div class="empty-stone">RIP</div>
+          <h2>世界很美好</h2>
+          <p>这里还没有甲方。</p>
+          <button class="pixel-btn primary" data-action="new-client">＋ 建立第一座墓碑</button>
+        </div>
+      </section>
+
+      <p class="local-note">🔒 数据默认只保存在当前浏览器。建议使用昵称或代号，不要记录敏感个人信息。</p>
+    </section>
+
+    <section id="profileView" class="view" data-view="profile" hidden>
+      <div id="profileContent"></div>
+    </section>
+
+    <section id="statsView" class="view" data-view="stats" hidden>
+      <div class="page-head">
+        <a class="pixel-btn" href="#graveyard">← 返回墓园</a>
+        <div><p class="eyebrow">CEMETERY ADMINISTRATION</p><h1>墓园管理局</h1></div>
+      </div>
+      <div id="statsContent"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Bury the project. Keep the lesson.</p>
+    <p>本项目不需要账号或服务器；导出备份前请确认文件中不含敏感信息。</p>
+  </footer>
+
+  <div id="clientModal" class="modal" aria-hidden="true">
+    <div class="modal-panel editor-panel" role="dialog" aria-modal="true" aria-labelledby="clientModalTitle">
+      <div class="modal-head">
+        <div><p class="eyebrow">BURIAL RECORD</p><h2 id="clientModalTitle">建立墓碑</h2></div>
+        <button class="close-btn" data-action="close-client" aria-label="关闭">×</button>
+      </div>
+      <form id="clientForm">
+        <input id="clientId" type="hidden">
+        <div class="client-builder">
+          <aside class="builder-preview">
+            <p class="eyebrow">LIVE PREVIEW</p>
+            <h3>墓碑预览</h3>
+            <div id="clientPreview" class="client-preview-stage" aria-live="polite"></div>
+            <p class="preview-note">输入姓名、选择特质和皮肤，墓碑会实时更新。</p>
+          </aside>
+          <div class="builder-fields">
+            <div class="form-grid">
+              <label class="field"><span>甲方名称 / 代号 *</span><input id="clientName" maxlength="50" required placeholder="例：王总 / A客户 / 某项目负责人"><small>建议使用昵称或代号。</small></label>
+              <label class="field"><span>立碑时间 *</span><input id="burialDate" type="date" required></label>
+              <label class="field full"><span>甲方特质</span><div id="traitPicker" class="trait-picker"></div><div class="inline-input"><input id="customTrait" maxlength="18" placeholder="自定义特质"><button type="button" class="pixel-btn" data-action="add-trait">＋ 添加</button></div><small>可多选；墓碑上最多展示前 2 个。</small></label>
+              <label class="field full"><span>墓志铭</span><div class="inline-input"><input id="epitaph" maxlength="120" placeholder="例：需求虽逝，修改意见永存。"><button type="button" class="pixel-btn" data-action="random-epitaph">随机一句</button></div></label>
+              <label class="field"><span>墓碑皮肤</span><select id="stoneSkin"><option value="arch">拱顶石碑</option><option value="slab">方碑</option><option value="obelisk">纪念柱</option></select></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="editor-section">
+          <div class="section-title-row"><div><p class="eyebrow">PROJECT HISTORY</p><h3>接触事件 / 项目教训</h3></div><button type="button" class="pixel-btn" data-action="add-event-row">＋ 添加事件</button></div>
+          <div id="eventRows" class="event-rows"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="pixel-btn" data-action="close-client">取消</button>
+          <button type="submit" class="pixel-btn primary">保存并立碑</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="eventModal" class="modal" aria-hidden="true">
+    <div class="modal-panel small-panel" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle">
+      <div class="modal-head"><div><p class="eyebrow">NEW MEMORY</p><h2 id="eventModalTitle">记录一件往事</h2></div><button class="close-btn" data-action="close-event">×</button></div>
+      <form id="singleEventForm">
+        <input id="eventClientId" type="hidden"><input id="eventId" type="hidden">
+        <div class="form-grid single">
+          <label class="field"><span>日期 *</span><input id="eventDate" type="date" required></label>
+          <label class="field"><span>类型</span><select id="eventType"></select></label>
+          <label class="field full"><span>事件标题 *</span><input id="eventTitle" maxlength="60" required placeholder="例：第一次改需求"></label>
+          <label class="field full"><span>具体发生了什么？</span><textarea id="eventContent" rows="6" maxlength="1200" placeholder="记录事实、结果，以及你从中学到了什么。"></textarea></label>
+        </div>
+        <div class="modal-actions"><button type="button" class="pixel-btn" data-action="close-event">取消</button><button class="pixel-btn primary" type="submit">保存事件</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="dataModal" class="modal" aria-hidden="true">
+    <div class="modal-panel small-panel" role="dialog" aria-modal="true" aria-labelledby="dataTitle">
+      <div class="modal-head"><div><p class="eyebrow">LOCAL DATA</p><h2 id="dataTitle">数据管理</h2></div><button class="close-btn" data-action="close-data">×</button></div>
+      <div class="data-actions">
+        <button class="pixel-btn primary" data-action="export-data">⇩ 导出 JSON 备份</button>
+        <label class="pixel-btn file-label">⇧ 导入 JSON<input id="importFile" type="file" accept="application/json"></label>
+        <button class="pixel-btn" data-action="download-sample">⊙ 下载示例数据</button>
+        <button class="pixel-btn danger" data-action="clear-data">⚠ 清空全部数据</button>
+      </div>
+      <p class="fine-print">导入时会自动兼容旧版甲方墓园数据。清空浏览器网站数据也会删除墓园，请定期备份。</p>
+    </div>
+  </div>
+
+  <div id="onboardingModal" class="modal" aria-hidden="true">
+    <div class="modal-panel notice-panel" role="dialog" aria-modal="true" aria-labelledby="noticeTitle">
+      <div class="notice-icon">⚰</div>
+      <p class="eyebrow">BEFORE ENTERING</p>
+      <h2 id="noticeTitle">入园须知</h2>
+      <p>这是一个用于项目复盘和情绪释放的本地工具。默认不上传你填写的信息。</p>
+      <ul>
+        <li>建议使用昵称或代号。</li>
+        <li>不要记录手机号、地址、证件号码、银行账号、公司机密等敏感信息。</li>
+        <li>公开截图或分享前，请自行检查其中是否包含可识别个人的信息。</li>
+      </ul>
+      <button class="pixel-btn primary wide" data-action="accept-notice">我知道了，进入墓园</button>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal" aria-hidden="true">
+    <div class="modal-panel confirm-panel" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="notice-icon">?</div>
+      <h2 id="confirmTitle">确认操作</h2>
+      <p id="confirmText"></p>
+      <div class="modal-actions centered"><button class="pixel-btn" data-action="confirm-no">再想想</button><button id="confirmYes" class="pixel-btn danger">确认</button></div>
+    </div>
+  </div>
+
+  <div id="toastLayer" class="toast-layer" aria-live="polite" aria-atomic="true"></div>
+  <div id="effectLayer" class="effect-layer" aria-hidden="true"></div>
+</body>
+</html>
