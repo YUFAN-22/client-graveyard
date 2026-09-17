@@ -32,13 +32,13 @@
       <span class="brand-mark" aria-hidden="true"><i></i></span>
       <span class="brand-copy">
         <strong>甲方墓园</strong>
-        <small>CLIENT GRAVEYARD // ARCADE PIXEL V1.1</small>
+        <small>CLIENT GRAVEYARD // ARCADE PIXEL V1.1E</small>
       </span>
     </a>
     <div class="hud-counters" aria-label="墓园统计">
-      <span><b id="hudGraves">00</b><small>GRAVES</small></span>
-      <span><b id="hudIncense">000</b><small>INCENSE</small></span>
-      <span><b id="hudPoop">000</b><small>ANGER</small></span>
+      <span><b id="hudGraves">00</b><small>墓碑 · GRAVES</small></span>
+      <span><b id="hudIncense">000</b><small>上香 · INCENSE</small></span>
+      <span><b id="hudPoop">000</b><small>愤怒 · ANGER</small></span>
     </div>
     <nav class="top-actions" aria-label="主要功能">
       <button class="pixel-btn primary" data-action="new-client">＋ 新建墓碑</button>
@@ -53,8 +53,18 @@
       <div class="hero">
         <div class="hero-copy">
           <p class="eyebrow">LOCAL · PRIVATE · PIXEL MEMORIAL</p>
-          <h1>有些项目结束了，<br><span>有些甲方值得立块碑。</span></h1>
-          <p>埋葬糟糕项目，留下宝贵教训。所有记录默认只存在你的浏览器里。</p>
+          <div class="hero-title-wrap">
+            <h1>
+              <span id="heroLead" class="hero-lead">有些项目结束了</span>
+              <span class="hero-main">有些甲方值得立块碑。</span>
+            </h1>
+            <button class="hero-edit-btn" type="button" data-action="edit-hero-lead" title="修改第一行标语">✎ 修改</button>
+          </div>
+          <div id="heroLeadEditor" class="hero-lead-editor" hidden>
+            <input id="heroLeadInput" maxlength="24" aria-label="第一行标语">
+            <button type="button" class="pixel-btn primary" data-action="save-hero-lead">保存</button>
+            <button type="button" class="pixel-btn" data-action="cancel-hero-lead">取消</button>
+          </div>
         </div>
         <aside id="todayMemorial" class="today-card" aria-live="polite"></aside>
       </div>
