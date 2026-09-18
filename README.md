@@ -1,7 +1,7 @@
-# 乙方守墓园 · Client Graveyard
+# 乙方守墓园 · Briefyard
 
 > **Bury the project. Keep the lesson.**  
-> 一个给乙方用的像素风项目复盘、情绪释放和解压小游戏。
+>A pixel graveyard for dead briefs, endless revisions, and cursed client projects. 需求变了，方案毙了，版本又改了，项目还没完。 别删，埋了吧。这里是乙方人的赛博墓园。
 
 乙方守墓园（甲方墓园 / Client Graveyard）把一次次“难忘合作”变成可浏览的像素墓碑：记录甲方特质、合作事件和项目教训；想放下时可以上一炷香，想发泄时可以扔一个 💩。核心数据默认只保存在用户自己的浏览器里。
 
