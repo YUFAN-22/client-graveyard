@@ -1,1 +1,0 @@
-README screenshots in this folder are derived directly from the three screenshots provided by the project author in ChatGPT on 2026-09-17.

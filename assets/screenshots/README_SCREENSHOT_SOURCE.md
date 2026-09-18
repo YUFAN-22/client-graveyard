@@ -1,1 +1,0 @@
-The README screenshots should use the three screenshots supplied by the project author in the ChatGPT conversation on 2026-09-17. These source captures show: (1) the home/hero view, (2) the graveyard selection view, and (3) the cemetery administration/statistics view.

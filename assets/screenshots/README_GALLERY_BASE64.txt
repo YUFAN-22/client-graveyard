@@ -1,1 +1,0 @@
-This repository uses a README gallery generated directly from the three screenshots supplied by the project author. Binary screenshot upload is pending; this marker documents the source images used for the README gallery.

@@ -1,1 +1,0 @@
-The README uses screenshots supplied by the project author.

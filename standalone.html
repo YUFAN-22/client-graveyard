@@ -1,0 +1,1908 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="甲方墓园 Client Graveyard：一个用于项目复盘、情绪释放和记录合作教训的本地像素 Web App。">
+  <meta name="theme-color" content="#11131f">
+  <title>甲方墓园 · Client Graveyard</title>
+  <style>
+/* css/style.css */
+:root{
+  --bg:#0b1010; --bg2:#121a19; --panel:#111516; --panel2:#191f21; --panel3:#22282a;
+  --line:#0a0a0a; --line2:#e7e8d8; --text:#f7f4df; --muted:#a7ad9c;
+  --yellow:#ffd83d; --purple:#7651ff; --purple2:#4f36c9; --red:#ff455f; --green:#68dc65; --blue:#52b9ff;
+  --stone:#92988d; --stone2:#6c746a; --stone3:#4c554d; --soil:#382a1f; --shadow:#050505;
+  --max:1440px;
+  font-synthesis:none;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",Arial,sans-serif;overflow-x:hidden}
+button,input,textarea,select{font:inherit}button,a{color:inherit}a{text-decoration:none}button{cursor:pointer}[hidden]{display:none!important}
+::selection{background:var(--yellow);color:#111}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(255,255,255,.015) 50%,transparent 50%),linear-gradient(90deg,rgba(255,255,255,.012) 50%,transparent 50%);background-size:8px 8px;opacity:.6}
+
+/* ===== Top HUD ===== */
+.site-header{position:sticky;top:0;z-index:80;display:grid;grid-template-columns:minmax(260px,1fr) auto auto;align-items:center;gap:18px;padding:12px clamp(12px,3vw,36px);border-bottom:5px solid #000;background:#101315;box-shadow:0 5px 0 var(--purple2)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}.brand-copy{min-width:0}
+.brand-mark{position:relative;width:46px;height:46px;border:4px solid #000;background:var(--yellow);box-shadow:5px 5px 0 #000;flex:0 0 auto}.brand-mark:before,.brand-mark:after,.brand-mark i{content:"";position:absolute;background:#1b1b1b}.brand-mark:before{width:8px;height:28px;left:19px;top:8px}.brand-mark:after{height:8px;width:28px;left:9px;top:18px}.brand-mark i{width:7px;height:7px;right:4px;bottom:4px;background:var(--red)}
+.brand strong{display:block;font-size:21px;font-weight:900;letter-spacing:.12em;line-height:1.05}.brand small{display:block;color:var(--yellow);font:800 10px/1.2 "Courier New",monospace;letter-spacing:.16em;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud-counters{display:flex;align-items:stretch;border:4px solid #000;box-shadow:4px 4px 0 #000;background:var(--purple)}.hud-counters span{min-width:72px;padding:6px 9px;text-align:center;border-right:3px solid #000}.hud-counters span:last-child{border-right:0}.hud-counters b{display:block;font:900 19px/1 "Courier New",monospace;color:#fff}.hud-counters small{display:block;margin-top:3px;font:800 7px/1 "Courier New",monospace;letter-spacing:.1em;color:#e8e4ff}
+.top-actions{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+
+/* ===== Pixel buttons / inputs ===== */
+.pixel-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 13px;border:4px solid #000;border-radius:0;background:#22272a;color:#fff;box-shadow:4px 4px 0 #000;font-weight:900;font-size:12px;letter-spacing:.02em;line-height:1;user-select:none;transition:none}.pixel-btn:hover{background:#31373a;color:var(--yellow);outline:2px solid var(--yellow);outline-offset:-6px}.pixel-btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}.pixel-btn.primary{background:var(--yellow);color:#111}.pixel-btn.primary:hover{background:#ffe46e;color:#111}.pixel-btn.danger{background:var(--red);color:#fff}.pixel-btn.wide{width:100%}.pixel-btn.icon-only{width:43px;padding:0;font-size:18px}.file-label input{display:none}
+select,input,textarea{border:4px solid #000;background:#0f1415;color:var(--text);padding:10px 11px;border-radius:0;outline:0;box-shadow:inset -3px -3px 0 #282f31;font-weight:700}select:focus,input:focus,textarea:focus{border-color:var(--yellow);box-shadow:0 0 0 3px #000,inset -3px -3px 0 #282f31}input::placeholder,textarea::placeholder{color:#6f776d}
+
+/* ===== Shell / hero ===== */
+.app-shell{position:relative;z-index:5;width:min(var(--max),100%);margin:0 auto;padding:0 clamp(12px,3vw,38px) 70px}.view{min-height:70vh}
+.hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(285px,.6fr);gap:26px;align-items:end;padding:46px 0 26px}.eyebrow{margin:0 0 9px;color:var(--yellow);font:900 11px/1.2 "Courier New",monospace;letter-spacing:.16em;text-transform:uppercase}.hero h1,.page-head h1{font-family:"Microsoft YaHei","PingFang SC",sans-serif;margin:0;line-height:1.08;font-size:clamp(38px,5vw,68px);letter-spacing:-.03em;font-weight:900;text-shadow:4px 0 #000,-4px 0 #000,0 4px #000,0 -4px #000,6px 6px 0 var(--purple2)}.hero h1 span{color:var(--yellow)}.hero-copy>p:last-child{max-width:750px;color:#d0d4c6;line-height:1.8;margin:18px 0 0;font-weight:700}
+.today-card{min-height:150px;border:4px solid #000;background:var(--purple);box-shadow:7px 7px 0 #000;padding:18px;position:relative}.today-card:before{content:"TODAY";position:absolute;right:10px;top:9px;color:#cfc6ff;font:900 9px "Courier New",monospace;letter-spacing:.18em}.today-card h3{margin:4px 0 8px;font-size:25px;font-weight:900}.today-card p{color:#f0edff;font-size:12px;line-height:1.6}.today-card .pixel-btn{position:relative;z-index:1;background:#111;color:#fff}
+
+/* ===== Toolbar ===== */
+.cemetery-toolbar{display:grid;grid-template-columns:minmax(270px,390px) 1fr auto;gap:14px;align-items:start;margin-bottom:16px}.search-box{position:relative;height:54px;display:flex;align-items:center;gap:8px;padding:16px 10px 4px;border:4px solid #000;background:#111617;box-shadow:4px 4px 0 #000}.search-label{position:absolute;left:8px;top:4px;color:var(--yellow);font:900 8px "Courier New",monospace;letter-spacing:.16em}.search-prefix{color:var(--green);font:900 20px/1 "Courier New",monospace}.search-box input{width:100%;padding:0;border:0;box-shadow:none;background:transparent;color:#fff;font-size:13px}.search-box input:focus{border:0;box-shadow:none}.filter-chips{display:flex;gap:7px;flex-wrap:wrap;min-height:54px;align-items:center}.filter-chip{border:3px solid #000;background:#272d2f;color:#e9eadf;padding:7px 9px;cursor:pointer;font-size:11px;font-weight:900;box-shadow:3px 3px 0 #000}.filter-chip:hover{color:var(--yellow)}.filter-chip.active{background:var(--yellow);color:#111;transform:translate(2px,2px);box-shadow:1px 1px 0 #000}.scene-controls{display:flex;gap:8px}.scene-controls label{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:900;color:var(--muted)}.scene-controls select{padding:8px 24px 8px 8px;font-size:10px}
+
+/* ===== Graveyard world ===== */
+.graveyard-scene{position:relative;min-height:630px;overflow:hidden;border:5px solid #000;background:linear-gradient(#151b24 0 17%,#20263b 17% 34%,#182b24 34% 52%,#284631 52% 100%);box-shadow:8px 8px 0 #000;padding:86px 24px 92px;isolation:isolate;image-rendering:pixelated}.graveyard-scene:before{content:"";position:absolute;inset:50% 0 0;background:repeating-linear-gradient(0deg,transparent 0 14px,rgba(0,0,0,.12) 14px 18px),repeating-linear-gradient(90deg,transparent 0 38px,rgba(0,0,0,.10) 38px 44px);z-index:-2}.graveyard-scene:after{content:"";position:absolute;left:0;right:0;bottom:0;height:42px;background:repeating-linear-gradient(90deg,#1c3626 0 18px,#24472f 18px 34px,#193022 34px 46px);border-top:4px solid #0d2015;z-index:-1}.pixel-hill{position:absolute;left:-5%;right:-5%;top:14%;height:155px;background:#121e1b;clip-path:polygon(0 74%,8% 74%,8% 65%,16% 65%,16% 70%,28% 70%,28% 44%,36% 44%,36% 60%,49% 60%,49% 38%,58% 38%,58% 57%,70% 57%,70% 49%,82% 49%,82% 68%,100% 68%,100% 100%,0 100%);z-index:-3}.fence{position:absolute;top:187px;width:175px;height:68px;border-top:7px solid #0a0f0d;border-bottom:7px solid #0a0f0d;opacity:.9;z-index:-1}.fence:after{content:"";position:absolute;inset:-28px 0;background:repeating-linear-gradient(90deg,transparent 0 22px,#0a0f0d 22px 30px,transparent 30px 44px)}.fence-left{left:-18px}.fence-right{right:-18px}.dead-tree{position:absolute;z-index:-1;width:80px;height:170px;bottom:62px;opacity:1}.dead-tree i{position:absolute;left:34px;bottom:0;width:16px;height:120px;background:#10120f;transform:skew(-4deg)}.dead-tree b,.dead-tree b:before,.dead-tree b:after{position:absolute;content:"";display:block;height:12px;background:#10120f;transform-origin:left center}.dead-tree b{left:36px;top:58px;width:50px;transform:rotate(-28deg)}.dead-tree b:before{left:8px;top:-5px;width:45px;transform:rotate(82deg)}.dead-tree b:after{left:-8px;top:40px;width:56px;transform:rotate(-132deg)}.tree-left{left:22px}.tree-right{right:38px;transform:scaleX(-1)}
+.grave-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:54px 26px;position:relative;z-index:3;align-items:end}.grave-plot{position:relative;text-align:center;min-width:0;display:grid;grid-template-rows:245px auto auto;align-items:end}.grave-stage{position:relative;height:245px;display:flex;align-items:flex-end;justify-content:center;padding:0 4px 18px}.grave-stage:after{content:"";position:absolute;left:9%;right:9%;bottom:3px;height:20px;background:#142318;border:4px solid #0b130d;box-shadow:0 7px 0 #0a100b;clip-path:polygon(8% 0,92% 0,92% 20%,100% 20%,100% 80%,88% 80%,88% 100%,12% 100%,12% 80%,0 80%,0 20%,8% 20%);z-index:-1}.grave-plot[data-level="1"] .grave-stage:before,.grave-plot[data-level="2"] .grave-stage:before,.grave-plot[data-level="3"] .grave-stage:before,.grave-plot[data-level="4"] .grave-stage:before{content:"";position:absolute;left:12%;bottom:8px;width:8px;height:12px;background:#4a7b42;box-shadow:10px -4px 0 #386b36,20px 2px 0 #579046,80px 1px 0 #3c7239,92px -5px 0 #4f8742;z-index:1}.select-arrow{position:absolute;left:2px;top:42%;color:var(--yellow);font:900 23px/1 "Courier New",monospace;text-shadow:3px 3px 0 #000;opacity:0;transform:translateX(-6px)}.grave-plot:hover .select-arrow,.grave-plot:focus-within .select-arrow{opacity:1;transform:translateX(0)}.grave-plot:hover .grave-stone{transform:translateY(-4px);outline:4px solid var(--yellow);outline-offset:3px}.grave-plot:hover .grave-stage:after{background:#203923}
+
+/* ===== Pixel gravestones ===== */
+.grave-stone{position:relative;margin:0 auto;width:min(100%,214px);height:198px;background:var(--stone);border:5px solid #171a18;box-shadow:7px 7px 0 #242b25,0 12px 0 #10130f;cursor:pointer;color:#171a16;padding:48px 14px 24px;overflow:visible;transform:translateZ(0);transition:none}.grave-stone.skin-arch{height:205px;clip-path:polygon(0 24%,6% 24%,6% 15%,12% 15%,12% 10%,20% 10%,20% 6%,30% 6%,30% 3%,70% 3%,70% 6%,80% 6%,80% 10%,88% 10%,88% 15%,94% 15%,94% 24%,100% 24%,100% 100%,0 100%)}.grave-stone.skin-slab{height:185px;clip-path:polygon(0 8%,5% 8%,5% 3%,95% 3%,95% 8%,100% 8%,100% 100%,0 100%)}.grave-stone.skin-obelisk{height:220px;width:min(92%,190px);clip-path:polygon(50% 0,58% 6%,66% 6%,66% 12%,78% 12%,78% 18%,88% 18%,88% 100%,12% 100%,12% 18%,22% 18%,22% 12%,34% 12%,34% 6%,42% 6%);padding-left:18px;padding-right:18px;padding-top:55px}.grave-stone:before{content:"";position:absolute;inset:10px;border:4px solid rgba(40,46,41,.72);pointer-events:none}.grave-stone:after{content:"";position:absolute;left:16px;right:16px;top:22px;height:7px;background:#b4b8ad;box-shadow:0 7px 0 #838a80;opacity:.9}.grave-stone.skin-obelisk:after{top:34px}.grave-name{position:relative;z-index:2;font-weight:900;font-size:clamp(22px,1.8vw,29px);line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;color:#171a16;text-shadow:2px 2px 0 rgba(255,255,255,.22)}.grave-traits{position:relative;z-index:2;display:flex;justify-content:center;align-items:center;gap:4px;flex-wrap:wrap;margin:10px auto 0;min-height:38px;overflow:hidden}.stone-trait{display:inline-block;max-width:86px;padding:3px 5px;border:2px solid #252b26;background:#747d72;color:#101410;font-size:11px;line-height:1.15;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.grave-counts{position:relative;z-index:2;display:flex;justify-content:center;gap:16px;margin-top:11px;font:900 13px/1.1 "Courier New",monospace;color:#202620}.grave-counts>span{display:flex;align-items:center;gap:5px}.grave-date{position:absolute;z-index:2;left:10px;right:10px;bottom:12px;font:900 9px/1 "Courier New",monospace;color:#343c35;letter-spacing:.02em}.cracks{display:none;position:absolute;inset:0;pointer-events:none;z-index:3}.grave-plot[data-level="2"] .cracks,.grave-plot[data-level="3"] .cracks,.grave-plot[data-level="4"] .cracks{display:block}.cracks:before,.cracks:after{content:"";position:absolute;width:4px;background:#303630}.cracks:before{height:48px;top:58px;left:34%;transform:rotate(25deg);box-shadow:12px 23px 0 -1px #303630}.cracks:after{height:35px;top:82px;right:26%;transform:rotate(-34deg)}.grave-plot[data-level="4"] .grave-stone{background:#a28d65;border-color:#1b1710;box-shadow:7px 7px 0 #463721,0 12px 0 #10130f,0 0 0 4px var(--yellow)}.memorial-badge{position:absolute;top:-12px;right:-10px;background:var(--red);color:#fff;border:4px solid #000;padding:4px 6px;font:900 9px "Courier New",monospace;box-shadow:4px 4px 0 #000;z-index:6}.crow{display:none;position:absolute;right:8%;top:27px;width:26px;height:20px;z-index:5;animation:crowBob 1.2s steps(2,end) infinite}.crow:before{content:"";position:absolute;left:5px;top:6px;width:13px;height:10px;background:#090909;box-shadow:-5px 4px 0 #090909,12px -3px 0 #090909,17px 0 0 #090909}.crow:after{content:"";position:absolute;left:17px;top:3px;border-left:8px solid var(--yellow);border-top:3px solid transparent;border-bottom:3px solid transparent}.grave-plot[data-level="3"] .crow,.grave-plot[data-level="4"] .crow{display:block}
+.grave-actions{display:flex;justify-content:center;gap:8px;margin-top:8px}.grave-actions .pixel-btn{min-height:40px;padding:7px 10px;font-size:12px}.grave-actions .pixel-btn:first-child{background:#202629}.grave-actions .pixel-btn:last-child{background:#3a2621}.grave-meta{margin-top:9px;color:#d2d8c8;font:800 10px/1.2 "Courier New",monospace}.empty-state{position:relative;z-index:3;text-align:center;padding:95px 20px}.empty-state h2{font-size:34px;margin:18px 0 6px;font-weight:900}.empty-state p{color:var(--muted);font-weight:700}.empty-stone{margin:auto;width:105px;height:120px;padding-top:51px;background:#8f968c;border:5px solid #171a18;clip-path:polygon(0 25%,8% 25%,8% 14%,18% 14%,18% 8%,30% 8%,30% 4%,70% 4%,70% 8%,82% 8%,82% 14%,92% 14%,92% 25%,100% 25%,100% 100%,0 100%);box-shadow:7px 7px 0 #20251f;color:#262d25;font-weight:900}.local-note{text-align:center;color:#aab2a0;font-size:11px;font-weight:700;margin:18px 0 0}
+
+/* ===== CSS pixel icons ===== */
+.px-icon{position:relative;display:inline-block;flex:0 0 auto}.px-candle{width:10px;height:15px;background:#f3e7bb;border:2px solid #111;box-shadow:inset 0 -4px #d6a74f}.px-candle:before{content:"";position:absolute;left:1px;top:-8px;width:4px;height:6px;background:var(--yellow);border:2px solid #111;clip-path:polygon(50% 0,100% 60%,70% 100%,30% 100%,0 60%)}.px-poop{width:14px;height:12px;background:#8a5229;border:2px solid #111;clip-path:polygon(25% 0,75% 0,75% 18%,88% 18%,88% 42%,100% 42%,100% 100%,0 100%,0 42%,12% 42%,12% 20%,25% 20%);box-shadow:inset 0 3px #b67536}.px-poop:before,.px-poop:after{content:"";position:absolute;top:5px;width:2px;height:2px;background:#fff}.px-poop:before{left:3px}.px-poop:after{right:3px}
+
+/* ===== Page / footer ===== */
+.page-head{display:flex;align-items:end;gap:24px;padding:46px 0 24px;border-bottom:5px solid #000;box-shadow:0 4px 0 var(--purple)}.page-head h1{font-size:48px}.site-footer{position:relative;z-index:5;text-align:center;padding:28px 16px 42px;color:#818a7b;font:700 10px/1.7 "Courier New",monospace}.site-footer p{margin:4px}
+
+/* ===== Modal / creator ===== */
+.modal{display:none;position:fixed;inset:0;z-index:150;background:rgba(2,4,6,.9);padding:24px;overflow:auto}.modal.open{display:grid;place-items:center}.modal-panel{width:min(1080px,96vw);max-height:92vh;overflow:auto;background:#111516;border:5px solid #000;box-shadow:10px 10px 0 var(--purple2);padding:24px}.small-panel{width:min(680px,96vw)}.notice-panel,.confirm-panel{width:min(570px,94vw);text-align:center}.notice-panel p,.notice-panel li,.confirm-panel p{color:#c8cdbf;line-height:1.75}.notice-panel ul{text-align:left;margin:18px auto 24px;max-width:480px}.notice-icon{display:grid;place-items:center;width:76px;height:76px;border:5px solid #000;margin:0 auto 18px;font-size:34px;background:var(--yellow);color:#111;box-shadow:6px 6px 0 #000}.modal-head{display:flex;align-items:start;justify-content:space-between;gap:16px;margin-bottom:22px;border-bottom:5px solid #000;box-shadow:0 3px 0 var(--yellow);padding-bottom:15px}.modal-head h2{margin:0;font-size:31px;font-weight:900}.close-btn{width:41px;height:41px;border:4px solid #000;background:var(--red);color:#fff;font-size:24px;line-height:1;box-shadow:4px 4px 0 #000}.client-builder{display:grid;grid-template-columns:300px 1fr;gap:22px;align-items:start}.builder-preview{position:sticky;top:0;border:4px solid #000;background:#182027;box-shadow:6px 6px 0 #000;padding:14px}.builder-preview h3{margin:0 0 12px;font-size:19px}.client-preview-stage{height:285px;display:flex;align-items:flex-end;justify-content:center;padding:12px;background:linear-gradient(#20263b 0 42%,#29452f 42% 100%);border:4px solid #000;overflow:hidden}.client-preview-stage .grave-stage{width:100%;height:255px;padding-bottom:16px}.client-preview-stage .grave-stone{transform:scale(.92);transform-origin:bottom center}.preview-note{margin:12px 0 0;color:#a9b09f;font-size:10px;line-height:1.6}.builder-fields{min-width:0}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.form-grid.single{grid-template-columns:repeat(2,minmax(0,1fr))}.field{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:900;color:#e0e5d8}.field.full{grid-column:1/-1}.field small,.fine-print{font-size:9px;color:#858e7f;line-height:1.5}.field input,.field select,.field textarea{width:100%}.inline-input{display:grid;grid-template-columns:1fr auto;gap:8px}.trait-picker{display:flex;gap:7px;flex-wrap:wrap}.trait-option{border:3px solid #000;background:#252c2e;color:#e6e9dc;padding:7px 9px;font-size:10px;font-weight:900;cursor:pointer;box-shadow:3px 3px 0 #000}.trait-option.active{background:var(--yellow);color:#111;transform:translate(2px,2px);box-shadow:1px 1px 0 #000}.editor-section{margin-top:24px;border-top:4px dashed #414a44;padding-top:18px}.section-title-row{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:12px}.section-title-row h3{margin:0;font-size:20px}.event-rows{display:grid;gap:12px}.event-row{display:grid;grid-template-columns:130px 145px 1fr 1.45fr auto;gap:8px;align-items:start;padding:12px;border:4px solid #000;background:#0c1112;box-shadow:4px 4px 0 #292f31}.event-row input,.event-row select,.event-row textarea{min-width:0;width:100%;font-size:10px;padding:8px}.event-row textarea{resize:vertical;min-height:45px}.event-row .remove-row{height:42px;padding:0 10px}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}.modal-actions.centered{justify-content:center}.data-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}.data-actions .pixel-btn{min-height:54px}.fine-print{margin:18px 0 0}
+
+/* ===== Toast / effects ===== */
+.toast-layer{position:fixed;right:18px;bottom:18px;z-index:300;display:grid;gap:10px;pointer-events:none}.toast{width:min(370px,calc(100vw - 36px));padding:14px 16px;border:4px solid #000;background:#15191b;box-shadow:6px 6px 0 var(--purple);color:#f7f4df;animation:toastIn .25s steps(3,end),toastOut .35s 3.7s forwards}.toast:before{content:"SYSTEM MESSAGE";display:block;color:var(--yellow);font:900 8px "Courier New",monospace;letter-spacing:.15em;margin-bottom:6px}.toast strong{display:block;color:#fff;margin-bottom:4px;font-size:14px}.toast small{color:#bfc5b6;font-size:10px}.effect-layer{position:fixed;inset:0;z-index:250;pointer-events:none;overflow:hidden}.reaction-message{position:fixed;transform:translate(-50%,-50%);padding:11px 14px;background:#111416;border:4px solid #000;box-shadow:5px 5px 0 var(--yellow);color:#fff;font-size:12px;font-weight:900;animation:reactionMsg 5.2s forwards;white-space:nowrap}.reaction-message:before{content:"> ";color:var(--green)}.incense-effect{position:fixed;width:28px;height:42px;transform:translate(-50%,0);animation:incenseStay 5.2s steps(4,end) forwards}.incense-effect .effect-candle{position:absolute;left:7px;bottom:0;width:14px;height:27px;background:#efe3b9;border:3px solid #111;box-shadow:inset 0 -7px #d6a94f}.incense-effect .effect-candle:before{content:"";position:absolute;left:2px;top:-13px;width:6px;height:10px;background:var(--yellow);border:3px solid #111;clip-path:polygon(50% 0,100% 60%,70% 100%,30% 100%,0 60%)}.incense-effect:before,.incense-effect:after{content:"";position:absolute;width:6px;height:6px;background:#c9cec2;left:11px;top:-10px;box-shadow:9px -13px 0 #aeb6aa;animation:smokeRise 1.4s steps(4,end) infinite}.incense-effect:after{animation-delay:.6s}.poop-effect{position:fixed;width:42px;height:38px;animation:poopArc 1s steps(10,end) forwards}.poop-effect .effect-poop{position:absolute;inset:4px;background:#895126;border:4px solid #111;clip-path:polygon(30% 0,70% 0,70% 16%,84% 16%,84% 34%,96% 34%,96% 54%,100% 54%,100% 100%,0 100%,0 58%,8% 58%,8% 38%,18% 38%,18% 18%,30% 18%);box-shadow:inset 0 6px #b77736}.poop-effect .effect-poop:before,.poop-effect .effect-poop:after{content:"";position:absolute;top:16px;width:4px;height:4px;background:#fff}.poop-effect .effect-poop:before{left:8px}.poop-effect .effect-poop:after{right:8px}.poop-landed{animation:poopStay 4.3s 1s steps(8,end) forwards}.shake{animation:stoneShake .3s steps(5,end)!important}
+
+/* ===== Stats ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:28px 0}.stat-card{border:5px solid #000;background:#171b1d;box-shadow:6px 6px 0 var(--purple2);padding:20px;min-height:120px}.stat-card:nth-child(1){box-shadow:6px 6px 0 var(--yellow)}.stat-card:nth-child(2){box-shadow:6px 6px 0 var(--blue)}.stat-card:nth-child(3){box-shadow:6px 6px 0 var(--green)}.stat-card:nth-child(4){box-shadow:6px 6px 0 var(--red)}.stat-card b{display:block;font:900 42px/1 "Courier New",monospace;color:#fff}.stat-card span{display:block;color:#c6ccbd;font-size:11px;font-weight:900;margin-top:9px}.stats-panels{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}.stats-panel{border:5px solid #000;background:#121719;box-shadow:6px 6px 0 #292f32;padding:22px}.stats-panel h2{margin:0 0 18px;font-size:24px;font-weight:900}.trait-rank{display:grid;gap:12px}.rank-row{display:grid;grid-template-columns:120px 1fr 40px;gap:10px;align-items:center;font-size:11px;font-weight:900}.rank-bar{height:16px;background:#23292b;border:3px solid #000}.rank-fill{height:100%;background:var(--yellow)}.year-bars{display:flex;align-items:end;gap:14px;min-height:210px;padding-top:25px}.year-col{flex:1;text-align:center;font:800 9px "Courier New",monospace;color:#b2b9a9}.year-bar{min-height:5px;background:var(--purple);border:4px solid #000;margin:0 auto 8px;width:min(52px,70%);position:relative}.year-bar b{position:absolute;left:50%;top:-23px;transform:translateX(-50%);color:#fff}.achievement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.achievement{display:flex;gap:11px;padding:12px;border:4px solid #000;background:#0c1112;opacity:.42}.achievement.unlocked{opacity:1;box-shadow:4px 4px 0 var(--yellow)}.achievement-icon{font-size:24px}.achievement h3{font-size:13px;margin:0 0 4px}.achievement p{font-size:10px;color:#aeb5a6;margin:0;line-height:1.5}
+
+/* ===== Profile / RPG dossier ===== */
+.profile-shell{padding:40px 0}.profile-topbar{display:flex;justify-content:space-between;gap:14px;margin-bottom:22px}.profile-actions{display:flex;gap:8px;flex-wrap:wrap}.profile-hero{display:grid;grid-template-columns:330px 1fr;gap:28px;align-items:center;border:5px solid #000;background:#111516;box-shadow:8px 8px 0 var(--purple2);padding:26px;position:relative}.profile-hero:before{content:"CLIENT FILE";position:absolute;left:14px;top:10px;color:var(--yellow);font:900 9px "Courier New",monospace;letter-spacing:.16em}.profile-stone-wrap{display:grid;place-items:center;min-height:310px;background:linear-gradient(#20263b 0 46%,#29452f 46% 100%);border:5px solid #000;position:relative;overflow:hidden}.profile-stone-wrap .grave-plot{display:block;width:270px}.profile-stone-wrap .grave-stone{width:220px}.profile-info h1{margin:0;font-size:clamp(40px,5vw,68px);font-weight:900;letter-spacing:-.03em;text-shadow:5px 5px 0 #000}.profile-traits{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0}.profile-traits span{padding:6px 8px;border:3px solid #000;background:var(--yellow);color:#111;font-size:10px;font-weight:900;box-shadow:3px 3px 0 #000}.epitaph{margin:20px 0 0;padding:16px 18px;border:4px solid #000;background:#0b0f10;color:#e4e0d0;font-size:17px;line-height:1.7;font-weight:700;box-shadow:5px 5px 0 #272e30}.profile-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:20px}.profile-stat{padding:13px;border:4px solid #000;background:#171c1e}.profile-stat b{display:block;font:900 26px/1 "Courier New",monospace;color:var(--yellow)}.profile-stat span{font-size:9px;color:#c0c6b7;font-weight:900}.profile-reactions{display:flex;gap:10px;margin-top:18px}.timeline-section{margin-top:25px;border:5px solid #000;background:#111516;box-shadow:7px 7px 0 #292f31;padding:24px}.timeline-head{display:flex;justify-content:space-between;align-items:end;gap:14px;margin-bottom:20px}.timeline-head h2{margin:0;font-size:31px;font-weight:900}.timeline-head h2:before{content:"PROJECT LOG // ";color:var(--yellow);font:900 10px "Courier New",monospace;display:block;margin-bottom:6px}.timeline{position:relative;display:grid;gap:0}.timeline:before{content:"";position:absolute;left:142px;top:0;bottom:0;width:4px;background:var(--purple)}.timeline-item{display:grid;grid-template-columns:120px 1fr;gap:44px;padding:0 0 24px;position:relative}.timeline-item:before{content:"";position:absolute;left:134px;top:8px;width:16px;height:16px;background:var(--yellow);border:4px solid #000}.timeline-date{color:var(--yellow);font:900 10px "Courier New",monospace;padding-top:10px;text-align:right}.timeline-card{border:4px solid #000;background:#0c1112;padding:15px;position:relative;box-shadow:4px 4px 0 #282e30}.timeline-type{font:900 9px "Courier New",monospace;color:var(--green);letter-spacing:.12em}.timeline-card h3{margin:6px 0 8px;font-size:19px;font-weight:900}.timeline-card p{color:#c1c7b9;line-height:1.7;margin:0;white-space:pre-wrap;font-size:11px;font-weight:700}.timeline-tools{display:flex;gap:6px;justify-content:flex-end;margin-top:10px}.timeline-tools button{border:0;background:transparent;color:#9ea697;font-size:9px;font-weight:900;cursor:pointer}.timeline-tools button:hover{color:var(--yellow)}.no-events{text-align:center;color:#a6ae9e;padding:40px 20px;border:4px dashed #384044;background:#0d1112;font-weight:700}.share-canvas{display:none}
+
+.client-preview-stage .grave-stone{pointer-events:none}
+.achievement-icon{display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;border:4px solid #000;background:var(--purple);box-shadow:3px 3px 0 #000;color:#fff;font-weight:900;font-size:18px}.achievement.unlocked .achievement-icon{background:var(--yellow);color:#111}
+
+
+/* css/pixel.css */
+/* Pixel ambience and frame-based motion */
+body[data-theme="day"]{--bg:#182126;--bg2:#233037;--panel:#151b1d;--panel2:#20282b;--text:#faf5df;--muted:#c8ccbc}
+body[data-theme="day"] .graveyard-scene{background:linear-gradient(#5e78a0 0 17%,#728aae 17% 34%,#31503a 34% 52%,#416a43 52% 100%)}
+body[data-theme="day"] .pixel-hill{background:#294631}body[data-theme="day"] .moon{opacity:.25;background:#fff1a2}.weather-layer{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;image-rendering:pixelated}.stars{position:absolute;inset:0;opacity:.65;background-image:linear-gradient(#fff,#fff),linear-gradient(#d7dece,#d7dece),linear-gradient(#fff1a2,#fff1a2);background-repeat:no-repeat;background-size:3px 3px,4px 4px,3px 3px;background-position:8% 12%,23% 7%,38% 16%;box-shadow:140px 90px 0 #fff,320px 40px 0 #d7dece,580px 115px 0 #fff,760px 65px 0 #fff1a2,990px 125px 0 #d7dece,1160px 52px 0 #fff,1290px 102px 0 #fff1a2}.moon{position:absolute;right:7vw;top:108px;width:74px;height:74px;background:#dcd9bd;border:5px solid #0c1010;box-shadow:7px 7px 0 rgba(0,0,0,.35);clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}body[data-theme="day"] .stars{opacity:0}.fog{position:absolute;width:1100px;height:140px;background:repeating-linear-gradient(0deg,transparent 0 14px,rgba(215,224,211,.06) 14px 22px,transparent 22px 34px);opacity:0}.fog-a{top:38%;left:-20%;animation:fogMove 18s steps(18,end) infinite}.fog-b{top:68%;right:-30%;animation:fogMove2 24s steps(24,end) infinite}body[data-weather="fog"] .fog{opacity:1}body[data-weather="rain"] .rain{position:absolute;inset:-20% 0 0;background-image:repeating-linear-gradient(105deg,transparent 0 26px,rgba(214,225,220,.22) 27px 30px,transparent 30px 54px);background-size:70px 70px;animation:rainFall .5s steps(3,end) infinite}body[data-weather="rain"] .fog{opacity:.2}
+@keyframes fogMove{0%{transform:translateX(-10%)}50%{transform:translateX(35%)}100%{transform:translateX(-10%)}}@keyframes fogMove2{0%{transform:translateX(15%)}50%{transform:translateX(-32%)}100%{transform:translateX(15%)}}@keyframes rainFall{to{background-position:-20px 70px}}@keyframes crowBob{50%{transform:translateY(-4px)}}@keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:none;opacity:1}}@keyframes toastOut{to{transform:translateX(120%);opacity:0}}@keyframes reactionMsg{0%{opacity:0;transform:translate(-50%,-20%) scale(.9)}10%,80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-110%) scale(1)}}@keyframes incenseStay{0%{opacity:0;transform:translate(-50%,15px)}12%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-16px)}}@keyframes smokeRise{0%{opacity:0;transform:translate(0,12px)}40%{opacity:.9}100%{opacity:0;transform:translate(8px,-22px)}}@keyframes poopArc{0%{transform:translate(var(--sx),var(--sy)) rotate(0deg) scale(.7)}55%{transform:translate(calc((var(--sx) + var(--tx))/2),calc(var(--sy) - 190px)) rotate(300deg) scale(1)}100%{transform:translate(var(--tx),var(--ty)) rotate(620deg) scale(1)}}@keyframes poopStay{0%,78%{opacity:1}100%{opacity:0;transform:translate(var(--tx),calc(var(--ty) + 28px)) rotate(640deg)}}@keyframes stoneShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
+
+
+/* css/responsive.css */
+@media(max-width:1160px){
+  .site-header{grid-template-columns:1fr auto}.hud-counters{grid-row:2;grid-column:1/-1;justify-self:start}.grave-grid{gap:48px 18px}.cemetery-toolbar{grid-template-columns:1fr 1fr}.filter-chips{grid-column:1/-1;order:3}.stats-grid{grid-template-columns:repeat(2,1fr)}.profile-hero{grid-template-columns:285px 1fr}.event-row{grid-template-columns:120px 130px 1fr}.event-row textarea{grid-column:1/-2}.event-row .remove-row{grid-column:-2/-1;grid-row:2}.client-builder{grid-template-columns:260px 1fr}
+}
+@media(max-width:760px){
+  .site-header{grid-template-columns:1fr auto;align-items:start;padding:10px 12px;gap:9px}.brand small{display:none}.brand-mark{width:39px;height:39px}.brand-mark:before{height:23px;left:15px;top:6px}.brand-mark:after{width:23px;left:7px;top:15px}.brand strong{font-size:16px}.top-actions .pixel-btn:not(.primary):not(.icon-only){display:none}.hud-counters{grid-row:2;grid-column:1/-1;width:100%;justify-content:stretch}.hud-counters span{flex:1;min-width:0}.hud-counters b{font-size:16px}.app-shell{padding-left:10px;padding-right:10px}.hero{grid-template-columns:1fr;padding-top:32px}.today-card{min-height:0}.hero h1{font-size:40px}.cemetery-toolbar{grid-template-columns:1fr}.filter-chips{grid-column:auto}.scene-controls{justify-content:space-between}.graveyard-scene{padding:60px 8px 76px;min-height:540px}.grave-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:40px 8px}.grave-plot{grid-template-rows:196px auto auto}.grave-stage{height:196px;padding:0 2px 14px}.grave-stone{width:min(100%,154px);height:158px;padding:38px 7px 20px;border-width:4px;box-shadow:5px 5px 0 #242b25,0 9px 0 #10130f}.grave-stone.skin-arch{height:165px}.grave-stone.skin-slab{height:148px}.grave-stone.skin-obelisk{height:176px;width:min(91%,142px);padding-top:44px}.grave-stone:before{inset:7px;border-width:3px}.grave-stone:after{left:11px;right:11px;top:17px;height:5px;box-shadow:0 5px 0 #838a80}.grave-stone.skin-obelisk:after{top:27px}.grave-name{font-size:clamp(18px,5vw,21px)}.stone-trait{font-size:9px;max-width:64px;padding:2px 3px}.grave-traits{gap:3px;margin-top:7px;min-height:30px}.grave-counts{font-size:10px;gap:9px;margin-top:7px}.grave-date{font-size:7px;bottom:9px}.grave-actions{gap:5px;margin-top:6px}.grave-actions .pixel-btn{font-size:10px;padding:5px 6px;min-height:36px}.grave-meta{font-size:8px}.select-arrow{display:none}.tree-left{left:-35px}.tree-right{right:-35px}.page-head{align-items:start;flex-direction:column}.page-head h1{font-size:38px}.stats-grid{grid-template-columns:1fr 1fr}.stats-panels{grid-template-columns:1fr}.achievement-grid{grid-template-columns:1fr}.profile-shell{padding-top:24px}.profile-topbar{align-items:flex-start;flex-direction:column}.profile-hero{grid-template-columns:1fr;padding:18px}.profile-stone-wrap{min-height:270px}.profile-stats{grid-template-columns:1fr 1fr}.profile-reactions{flex-wrap:wrap}.timeline-section{padding:14px}.timeline:before{left:10px}.timeline-item{grid-template-columns:1fr;gap:8px;padding-left:30px}.timeline-item:before{left:1px}.timeline-date{text-align:left;padding-top:0}.modal{padding:10px}.modal-panel{padding:15px;max-height:95vh}.client-builder{grid-template-columns:1fr}.builder-preview{position:relative}.client-preview-stage{height:230px}.client-preview-stage .grave-stage{height:205px}.form-grid,.form-grid.single{grid-template-columns:1fr}.field.full{grid-column:auto}.event-row{grid-template-columns:1fr 1fr}.event-row .ev-title,.event-row textarea{grid-column:1/-1}.event-row .remove-row{grid-column:1/-1;grid-row:auto}.data-actions{grid-template-columns:1fr}.section-title-row{align-items:flex-start;flex-direction:column}.toast-layer{right:8px;bottom:8px}.rank-row{grid-template-columns:90px 1fr 30px}.reaction-message{max-width:80vw;white-space:normal;text-align:center}
+}
+@media(max-width:390px){
+  .site-header{padding:8px}.brand strong{font-size:15px}.top-actions{gap:4px}.pixel-btn.primary{padding-left:7px;padding-right:7px}.graveyard-scene{padding-left:6px;padding-right:6px}.grave-grid{gap:34px 6px}.grave-actions .pixel-btn{padding:5px;width:50%;font-size:0}.grave-actions .pixel-btn .px-icon{transform:scale(1.2)}.grave-plot{grid-template-rows:184px auto auto}.grave-stage{height:184px}.grave-stone{width:min(100%,144px)}.stats-grid{grid-template-columns:1fr}.profile-stats{grid-template-columns:1fr 1fr}.hud-counters small{font-size:6px}
+}
+
+
+/* css/arcade-v11.css */
+/* ==========================================================================\n   Client Graveyard · Arcade / handheld pixel visual rebuild (v1.1)\n   Visual-only overrides. Core data / behavior remains unchanged.\n   ========================================================================== */
+
+:root{
+  --arcade-ink:#0a0b12;
+  --arcade-navy:#101326;
+  --arcade-navy-2:#171a35;
+  --arcade-grid:#29264d;
+  --arcade-yellow:#ffd83d;
+  --arcade-yellow-hi:#fff083;
+  --arcade-purple:#7355ff;
+  --arcade-purple-dark:#3826a9;
+  --arcade-magenta:#ff3e75;
+  --arcade-red:#ff4b4b;
+  --arcade-green:#63e66d;
+  --arcade-cyan:#59cfff;
+  --arcade-paper:#fff7dc;
+  --arcade-stone:#aeb3a5;
+  --arcade-stone-hi:#d4d7ca;
+  --arcade-stone-mid:#8c9387;
+  --arcade-stone-dark:#555e55;
+  --arcade-ground:#245438;
+  --arcade-ground-2:#183c29;
+  --arcade-shadow:#080911;
+  --ui-heavy:"Arial Black","Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Noto Sans CJK SC",sans-serif;
+  --ui-mono:"Courier New","Microsoft YaHei UI",monospace;
+}
+
+html{background:var(--arcade-ink)}
+body{
+  background:
+    linear-gradient(90deg,rgba(255,216,61,.035) 1px,transparent 1px),
+    linear-gradient(rgba(115,85,255,.04) 1px,transparent 1px),
+    var(--arcade-ink);
+  background-size:20px 20px;
+  font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+}
+body:before{
+  background:
+    linear-gradient(90deg,transparent 0 49%,rgba(255,255,255,.025) 49% 51%,transparent 51%),
+    linear-gradient(transparent 0 49%,rgba(255,255,255,.018) 49% 51%,transparent 51%);
+  background-size:8px 8px;
+  opacity:.75;
+}
+
+/* --- Top console HUD ------------------------------------------------------ */
+.site-header{
+  position:sticky;
+  top:0;
+  grid-template-columns:minmax(300px,1fr) auto auto;
+  min-height:82px;
+  padding:15px clamp(14px,3vw,40px) 12px;
+  background:
+    linear-gradient(var(--arcade-yellow),var(--arcade-yellow)) 0 0/100% 6px no-repeat,
+    linear-gradient(90deg,var(--arcade-purple) 0 25%,var(--arcade-yellow) 25% 50%,var(--arcade-magenta) 50% 75%,var(--arcade-green) 75%) 0 100%/100% 5px no-repeat,
+    #11131f;
+  border:0;
+  border-bottom:5px solid #000;
+  box-shadow:0 7px 0 var(--arcade-purple-dark),0 11px 0 #000;
+}
+.site-header:after{
+  content:"";
+  position:absolute;
+  left:0;right:0;bottom:-5px;height:5px;
+  background:repeating-linear-gradient(90deg,#000 0 10px,var(--arcade-purple) 10px 20px);
+  pointer-events:none;
+}
+.brand{gap:14px}
+.brand-mark{
+  width:52px;height:52px;
+  border:5px solid #000;
+  background:var(--arcade-magenta);
+  box-shadow:6px 6px 0 #000;
+  transform:rotate(-4deg);
+}
+.brand-mark:before{width:9px;height:31px;left:17px;top:6px;background:#12131a}
+.brand-mark:after{width:31px;height:9px;left:6px;top:17px;background:#12131a}
+.brand-mark i{width:8px;height:8px;right:4px;bottom:4px;background:var(--arcade-yellow)}
+.brand strong{
+  font-family:var(--ui-heavy);
+  font-size:24px;
+  font-weight:900;
+  letter-spacing:.08em;
+  color:#fff;
+  text-shadow:3px 3px 0 #000;
+}
+.brand small{color:var(--arcade-yellow);font:900 10px/1.2 var(--ui-mono);letter-spacing:.12em}
+.hud-counters{
+  border:4px solid #000;
+  background:var(--arcade-purple);
+  box-shadow:5px 5px 0 #000;
+}
+.hud-counters span{min-width:78px;padding:8px 10px;border-right:4px solid #000;background:rgba(0,0,0,.08)}
+.hud-counters span:nth-child(2){background:rgba(255,216,61,.12)}
+.hud-counters span:nth-child(3){background:rgba(255,62,117,.16)}
+.hud-counters b{font:900 22px/1 var(--ui-mono);text-shadow:2px 2px 0 #000}
+.hud-counters small{font:900 7px/1 var(--ui-mono);color:#fff7d6;letter-spacing:.14em}
+
+/* --- Buttons and form controls ------------------------------------------ */
+.pixel-btn{
+  min-height:43px;
+  padding:9px 14px;
+  border:4px solid #000;
+  border-radius:0;
+  background:#292c3d;
+  color:#fff;
+  box-shadow:5px 5px 0 #000;
+  font-family:var(--ui-heavy);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-shadow:1px 1px 0 rgba(0,0,0,.55);
+  transition:none;
+}
+.pixel-btn:hover{
+  background:var(--arcade-purple);
+  color:#fff;
+  outline:3px solid var(--arcade-yellow);
+  outline-offset:-7px;
+}
+.pixel-btn:active{transform:translate(4px,4px);box-shadow:1px 1px 0 #000}
+.pixel-btn.primary{background:var(--arcade-yellow);color:#111;text-shadow:none}
+.pixel-btn.primary:hover{background:var(--arcade-yellow-hi);color:#111}
+.pixel-btn.danger{background:var(--arcade-red)}
+.pixel-btn.icon-only{width:45px;font-family:var(--ui-mono)}
+
+input,textarea,select{
+  border:4px solid #000;
+  border-radius:0;
+  background:#0f1120;
+  color:#fff;
+  box-shadow:inset -4px -4px 0 #242947,4px 4px 0 rgba(0,0,0,.55);
+  font-weight:800;
+}
+input:focus,textarea:focus,select:focus{
+  border-color:#000;
+  outline:3px solid var(--arcade-yellow);
+  outline-offset:1px;
+  box-shadow:inset -4px -4px 0 #242947,4px 4px 0 #000;
+}
+
+/* --- Main title screen --------------------------------------------------- */
+.app-shell{width:min(1480px,100%);padding-left:clamp(12px,3vw,40px);padding-right:clamp(12px,3vw,40px)}
+.hero{
+  grid-template-columns:minmax(0,1.5fr) minmax(300px,.55fr);
+  gap:26px;
+  padding:48px 0 30px;
+  align-items:stretch;
+}
+.hero-copy{
+  position:relative;
+  border-left:8px solid var(--arcade-yellow);
+  padding:18px 24px 18px 28px;
+  background:
+    linear-gradient(90deg,rgba(115,85,255,.21),transparent 58%),
+    #10121d;
+  box-shadow:8px 8px 0 #000;
+  border-top:4px solid #000;
+  border-right:4px solid #000;
+  border-bottom:4px solid #000;
+}
+.hero-copy:after{
+  content:"PRESS START TO REMEMBER";
+  position:absolute;
+  right:16px;bottom:10px;
+  color:#8f93b6;
+  font:900 8px/1 var(--ui-mono);
+  letter-spacing:.14em;
+}
+.eyebrow{color:var(--arcade-cyan);font:900 10px/1.2 var(--ui-mono);letter-spacing:.16em}
+.hero h1,.page-head h1{
+  font-family:var(--ui-heavy);
+  font-size:clamp(40px,4.3vw,64px);
+  line-height:1.05;
+  letter-spacing:-.025em;
+  text-shadow:4px 0 #000,-4px 0 #000,0 4px #000,0 -4px #000,7px 7px 0 var(--arcade-purple);
+}
+.hero h1 span{color:var(--arcade-yellow)}
+.hero-copy>p:last-child{color:#e4e6f0;font-size:14px;line-height:1.75;margin-top:18px;padding-bottom:16px}
+.today-card{
+  min-height:100%;
+  border:5px solid #000;
+  background:var(--arcade-yellow);
+  color:#111;
+  box-shadow:8px 8px 0 var(--arcade-purple),12px 12px 0 #000;
+  padding:22px;
+}
+.today-card:before{content:"DAILY QUEST";color:#3e2e9b;font:900 9px var(--ui-mono);letter-spacing:.14em}
+.today-card .eyebrow{color:#4d36bd}
+.today-card h3{font-family:var(--ui-heavy);font-size:28px;text-shadow:2px 2px 0 rgba(255,255,255,.7)}
+.today-card p{color:#25251e;font-size:12px;font-weight:800}
+.today-card .pixel-btn{background:#11131d;color:#fff}
+
+/* --- Search / filter as game menu --------------------------------------- */
+.cemetery-toolbar{
+  grid-template-columns:minmax(280px,380px) 1fr auto;
+  gap:12px;
+  align-items:center;
+  padding:12px;
+  margin-bottom:22px;
+  border:4px solid #000;
+  background:#141728;
+  box-shadow:6px 6px 0 #000;
+}
+.search-box{
+  height:58px;
+  border:4px solid #000;
+  background:#090b14;
+  box-shadow:4px 4px 0 var(--arcade-purple);
+}
+.search-label{color:var(--arcade-yellow);font:900 8px var(--ui-mono)}
+.search-prefix{color:var(--arcade-green);font:900 22px/1 var(--ui-mono)}
+.search-box input{font-size:14px;font-weight:800}
+.filter-chip{
+  border:3px solid #000;
+  border-radius:0;
+  background:#2c3151;
+  color:#fff;
+  box-shadow:3px 3px 0 #000;
+  padding:8px 10px;
+  font-family:var(--ui-heavy);
+  font-size:10px;
+}
+.filter-chip:hover{background:var(--arcade-purple);color:#fff}
+.filter-chip.active{background:var(--arcade-yellow);color:#111;box-shadow:1px 1px 0 #000}
+.scene-controls label{color:#d7dbef;font-family:var(--ui-heavy);font-size:10px}
+.scene-controls select{background:#252942;color:#fff;font-size:10px}
+
+/* --- Main arcade stage --------------------------------------------------- */
+.graveyard-scene{
+  position:relative;
+  min-height:650px;
+  padding:122px 24px 88px;
+  overflow:hidden;
+  border:6px solid #000;
+  background:
+    linear-gradient(rgba(69,63,139,.42) 2px,transparent 2px),
+    linear-gradient(90deg,rgba(69,63,139,.42) 2px,transparent 2px),
+    linear-gradient(#101326 0 43%,#172a2a 43% 53%,#245438 53% 100%);
+  background-size:24px 24px,24px 24px,100% 100%;
+  box-shadow:
+    0 0 0 7px var(--arcade-yellow),
+    0 0 0 12px #000,
+    11px 11px 0 12px var(--arcade-purple);
+  isolation:isolate;
+  image-rendering:pixelated;
+}
+.graveyard-scene:before{
+  content:"";
+  position:absolute;
+  inset:53% 0 0;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 13px,rgba(6,15,10,.24) 13px 17px),
+    repeating-linear-gradient(90deg,transparent 0 34px,rgba(255,255,255,.045) 34px 38px),
+    var(--arcade-ground);
+  z-index:-2;
+}
+.graveyard-scene:after{
+  height:46px;
+  background:
+    repeating-linear-gradient(90deg,var(--arcade-purple) 0 12px,#000 12px 24px) 0 0/100% 8px no-repeat,
+    repeating-linear-gradient(90deg,#163c28 0 16px,#2f6b43 16px 32px,#204f34 32px 48px);
+  border-top:4px solid #000;
+}
+.arcade-stage-hud{
+  position:absolute;
+  top:18px;left:50%;
+  transform:translateX(-50%);
+  width:min(620px,74%);
+  min-height:72px;
+  z-index:8;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:12px;
+  padding:10px 14px;
+  border:5px solid #000;
+  background:var(--arcade-purple);
+  box-shadow:7px 7px 0 #000;
+  color:#fff;
+}
+.arcade-stage-hud span,.arcade-stage-hud em{font:900 9px/1.25 var(--ui-mono);letter-spacing:.1em;font-style:normal}
+.arcade-stage-hud span{color:var(--arcade-yellow)}
+.arcade-stage-hud b{text-align:center;font-family:var(--ui-heavy);font-size:22px;letter-spacing:.08em;text-shadow:3px 3px 0 #000}
+.arcade-stage-hud em{color:#d8d2ff;text-align:right}
+.pixel-hill{
+  top:21%;
+  height:170px;
+  background:var(--arcade-purple-dark);
+  opacity:.74;
+  clip-path:polygon(0 78%,7% 78%,7% 67%,16% 67%,16% 73%,27% 73%,27% 52%,35% 52%,35% 63%,48% 63%,48% 43%,57% 43%,57% 61%,70% 61%,70% 55%,81% 55%,81% 72%,91% 72%,91% 64%,100% 64%,100% 100%,0 100%);
+}
+.fence{top:245px;border-color:#090a10;opacity:1}
+.dead-tree{opacity:.9;filter:none}
+.dead-tree i,.dead-tree b,.dead-tree b:before,.dead-tree b:after{background:#0b0c12}
+.tree-left{left:12px}.tree-right{right:26px}
+
+/* --- Grave grid: 4 desktop / 2 mobile, shared floor line ---------------- */
+.grave-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:58px 24px;
+  align-items:end;
+  position:relative;
+  z-index:4;
+}
+.grave-plot{
+  min-width:0;
+  display:grid;
+  grid-template-rows:282px 50px 18px;
+  align-items:end;
+  text-align:center;
+  position:relative;
+}
+.grave-stage{
+  height:282px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding:0 7px 28px;
+  position:relative;
+}
+/* Explicit shared base-line: every stone sits on this line. */
+.grave-stage:after{
+  left:7%;right:7%;bottom:5px;height:24px;
+  background:#143824;
+  border:4px solid #07130d;
+  box-shadow:0 8px 0 #070b08;
+  clip-path:polygon(7% 0,93% 0,93% 18%,100% 18%,100% 82%,90% 82%,90% 100%,10% 100%,10% 82%,0 82%,0 18%,7% 18%);
+}
+.grave-plot[data-level="1"] .grave-stage:before,
+.grave-plot[data-level="2"] .grave-stage:before,
+.grave-plot[data-level="3"] .grave-stage:before,
+.grave-plot[data-level="4"] .grave-stage:before{
+  bottom:16px;
+  background:#69df5e;
+  box-shadow:10px -5px 0 #3f9b45,21px 2px 0 #7aea69,88px 1px 0 #3f9b45,101px -5px 0 #69df5e;
+}
+.select-arrow{
+  left:0;top:48%;
+  font:900 28px/1 var(--ui-mono);
+  color:var(--arcade-yellow);
+  text-shadow:3px 3px 0 #000;
+}
+.grave-plot:hover .grave-stone,
+.grave-plot:focus-within .grave-stone{
+  transform:translateY(-4px);
+  outline:4px solid var(--arcade-yellow);
+  outline-offset:4px;
+}
+.grave-plot:hover .grave-stage:after{background:#1d5131}
+
+/* --- Pixel gravestones --------------------------------------------------- */
+.grave-stone{
+  flex:0 0 auto;
+  width:min(100%,218px);
+  height:214px;
+  margin:0 auto;
+  padding:54px 14px 31px;
+  border:5px solid #121512;
+  border-radius:0;
+  background:
+    linear-gradient(90deg,transparent 0 12px,rgba(255,255,255,.15) 12px 18px,transparent 18px),
+    var(--arcade-stone);
+  box-shadow:
+    8px 8px 0 var(--arcade-stone-dark),
+    8px 14px 0 #0a0c0b;
+  color:#101410;
+  image-rendering:pixelated;
+  transform-origin:bottom center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  text-align:center;
+}
+.grave-stone.skin-arch{
+  height:226px;
+  clip-path:polygon(0 30%,4% 30%,4% 20%,8% 20%,8% 14%,14% 14%,14% 10%,22% 10%,22% 6%,32% 6%,32% 3%,68% 3%,68% 6%,78% 6%,78% 10%,86% 10%,86% 14%,92% 14%,92% 20%,96% 20%,96% 30%,100% 30%,100% 100%,0 100%);
+}
+.grave-stone.skin-slab{
+  height:212px;
+  clip-path:polygon(0 8%,4% 8%,4% 3%,96% 3%,96% 8%,100% 8%,100% 100%,0 100%);
+  padding-top:42px;
+  padding-bottom:39px;
+}
+.grave-stone.skin-slab .grave-traits{min-height:34px;margin-top:10px}
+.grave-stone.skin-slab .grave-counts{margin-top:auto;gap:14px}
+.grave-stone.skin-slab .grave-date{bottom:12px}
+.grave-stone.skin-obelisk{
+  height:246px;
+  width:min(92%,196px);
+  padding:67px 14px 31px;
+  clip-path:polygon(48% 0,52% 0,52% 3%,58% 3%,58% 7%,64% 7%,64% 11%,72% 11%,72% 16%,82% 16%,82% 22%,90% 22%,90% 100%,10% 100%,10% 22%,18% 22%,18% 16%,28% 16%,28% 11%,36% 11%,36% 7%,42% 7%,42% 3%,48% 3%);
+}
+.grave-stone:before{
+  inset:10px;
+  border:4px solid var(--arcade-stone-dark);
+  box-shadow:inset 4px 4px 0 rgba(255,255,255,.14);
+}
+.grave-stone:after{
+  left:17px;right:17px;top:23px;height:7px;
+  background:var(--arcade-stone-hi);
+  box-shadow:0 7px 0 var(--arcade-stone-mid),0 14px 0 rgba(80,89,80,.25);
+  opacity:1;
+}
+.grave-stone.skin-obelisk:after{top:37px}
+.grave-name{
+  position:relative;
+  z-index:4;
+  width:100%;
+  font-family:var(--ui-heavy);
+  font-size:clamp(30px,2.25vw,38px);
+  font-weight:900;
+  line-height:1.02;
+  letter-spacing:.035em;
+  color:#151915;
+  text-shadow:2px 2px 0 rgba(255,255,255,.34);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.grave-traits{
+  width:100%;
+  min-height:42px;
+  margin-top:11px;
+  gap:5px;
+  align-content:center;
+  justify-content:center;
+}
+.stone-trait{
+  max-width:98px;
+  padding:4px 6px;
+  border:3px solid #1d221e;
+  background:#737d71;
+  color:#0d100e;
+  font-family:var(--ui-heavy);
+  font-size:13px;
+  line-height:1;
+  font-weight:900;
+  box-shadow:2px 2px 0 rgba(255,255,255,.18);
+}
+.grave-counts{
+  width:100%;
+  margin-top:auto;
+  gap:18px;
+  font:900 15px/1 var(--ui-mono);
+  color:#111711;
+  justify-content:center;
+}
+.grave-counts>span{
+  min-width:54px;
+  justify-content:center;
+  padding:4px 6px;
+  border:2px solid #4d554d;
+  background:rgba(255,255,255,.12);
+}
+.grave-date{
+  bottom:12px;
+  font:900 10px/1 var(--ui-mono);
+  color:#2e382f;
+  letter-spacing:.04em;
+}
+.memorial-badge{
+  top:-14px;right:-9px;
+  border:4px solid #000;
+  background:var(--arcade-magenta);
+  color:#fff;
+  font:900 10px var(--ui-heavy);
+  box-shadow:4px 4px 0 #000;
+}
+.crow{right:7%;top:18px;transform:scale(1.15)}
+.grave-plot[data-level="4"] .grave-stone{
+  background:#bca96e;
+  border-color:#111;
+  box-shadow:8px 8px 0 #5d4b26,8px 14px 0 #090a09,0 0 0 5px var(--arcade-yellow);
+}
+
+/* --- Action row ---------------------------------------------------------- */
+.grave-actions{
+  height:50px;
+  margin:0;
+  gap:8px;
+  align-items:start;
+}
+.grave-actions .pixel-btn{
+  min-height:42px;
+  min-width:96px;
+  padding:8px 10px;
+  font-size:13px;
+  box-shadow:4px 4px 0 #000;
+}
+.grave-actions .pixel-btn:first-child{background:var(--arcade-yellow);color:#111;text-shadow:none}
+.grave-actions .pixel-btn:last-child{background:var(--arcade-magenta);color:#fff}
+.grave-actions .pixel-btn:first-child:hover{background:var(--arcade-yellow-hi);color:#111}
+.grave-actions .pixel-btn:last-child:hover{background:#ff6a95}
+.grave-meta{
+  margin:0;
+  align-self:end;
+  color:#e2e5d6;
+  font:900 9px/1 var(--ui-mono);
+  letter-spacing:.06em;
+  text-shadow:2px 2px 0 #000;
+}
+
+/* Larger hand-drawn CSS icons */
+.px-candle{width:12px;height:17px;border-width:2px}
+.px-candle:before{left:1px;top:-9px;width:5px;height:7px}
+.px-poop{width:16px;height:14px;border-width:2px}
+
+/* --- Empty screen -------------------------------------------------------- */
+.empty-state{padding:110px 20px 80px}
+.empty-state h2{font-family:var(--ui-heavy);font-size:38px;text-shadow:4px 4px 0 #000}
+.empty-state p{color:#eff2e5;font-weight:900}
+.empty-stone{border-width:5px;box-shadow:7px 7px 0 #000;color:#151915;font-family:var(--ui-heavy)}
+.local-note{color:#d4d9c8;font-size:12px;font-weight:800}
+
+/* --- RPG dossier / stats / dialog --------------------------------------- */
+.page-head{border-bottom:5px solid #000;box-shadow:0 5px 0 var(--arcade-yellow)}
+.page-head h1{font-family:var(--ui-heavy)}
+.profile-hero,
+.timeline-section,
+.stats-panel,
+.stat-card,
+.modal-panel{
+  border:5px solid #000;
+  background:#121522;
+  border-radius:0;
+}
+.profile-hero{box-shadow:9px 9px 0 var(--arcade-purple)}
+.profile-hero:before{color:var(--arcade-yellow);font:900 9px var(--ui-mono)}
+.profile-stone-wrap{
+  background:
+    linear-gradient(rgba(69,63,139,.35) 2px,transparent 2px),
+    linear-gradient(90deg,rgba(69,63,139,.35) 2px,transparent 2px),
+    linear-gradient(#111429 0 48%,#245438 48% 100%);
+  background-size:22px 22px,22px 22px,100% 100%;
+  border:5px solid #000;
+}
+.profile-info h1{font-family:var(--ui-heavy);text-shadow:5px 5px 0 #000,8px 8px 0 var(--arcade-purple)}
+.profile-traits span{background:var(--arcade-yellow);font-family:var(--ui-heavy);font-size:11px}
+.epitaph{background:#0a0c14;border:4px solid #000;box-shadow:5px 5px 0 var(--arcade-purple);font-weight:800}
+.profile-stat{background:#1a1e31;border:4px solid #000;box-shadow:3px 3px 0 #000}
+.profile-stat b{color:var(--arcade-yellow);font:900 30px/1 var(--ui-mono)}
+.profile-stat span{font-size:9px;color:#eef0ff}
+.timeline-section{box-shadow:8px 8px 0 #000}
+.timeline-head h2{font-family:var(--ui-heavy)}
+.timeline-head h2:before{color:var(--arcade-cyan);font:900 10px var(--ui-mono)}
+.timeline:before{background:var(--arcade-purple);width:5px}
+.timeline-item:before{background:var(--arcade-yellow);border:4px solid #000}
+.timeline-date{font:900 11px var(--ui-mono);color:var(--arcade-yellow)}
+.timeline-card{background:#0d1020;border:4px solid #000;box-shadow:5px 5px 0 #252a49}
+.timeline-type{color:var(--arcade-green);font:900 10px var(--ui-mono)}
+.timeline-card h3{font-family:var(--ui-heavy);font-size:20px}
+.timeline-card p{font-size:12px;color:#d5d8e8}
+.stat-card{min-height:128px;box-shadow:6px 6px 0 var(--arcade-purple)}
+.stat-card b{font:900 48px/1 var(--ui-mono);color:#fff;text-shadow:3px 3px 0 #000}
+.stat-card span{color:#f1f2ff;font-family:var(--ui-heavy)}
+.stats-panel{box-shadow:6px 6px 0 #000}
+.stats-panel h2{font-family:var(--ui-heavy)}
+.rank-fill{background:var(--arcade-yellow)}
+.year-bar{background:var(--arcade-purple)}
+.achievement{background:#0d1020;border:4px solid #000}
+.achievement.unlocked{box-shadow:4px 4px 0 var(--arcade-yellow)}
+.achievement-icon{background:var(--arcade-purple);font-family:var(--ui-heavy)}
+.achievement.unlocked .achievement-icon{background:var(--arcade-yellow);color:#111}
+
+/* Creator = character-builder screen */
+.modal{background:rgba(4,5,11,.94)}
+.modal-panel{box-shadow:10px 10px 0 var(--arcade-purple)}
+.modal-head{border-bottom-color:#343858}
+.modal-head h2,.section-title-row h3{font-family:var(--ui-heavy)}
+.builder-preview{
+  border:5px solid #000;
+  background:#171a30;
+  box-shadow:6px 6px 0 var(--arcade-yellow);
+}
+.client-preview-stage{
+  background:
+    linear-gradient(rgba(69,63,139,.36) 2px,transparent 2px),
+    linear-gradient(90deg,rgba(69,63,139,.36) 2px,transparent 2px),
+    linear-gradient(#101326 0 48%,#245438 48% 100%);
+  background-size:20px 20px,20px 20px,100% 100%;
+  border:4px solid #000;
+}
+.field{color:#f0f2ff;font-family:var(--ui-heavy)}
+.trait-option{background:#2b3151;border:3px solid #000;font-family:var(--ui-heavy);box-shadow:3px 3px 0 #000}
+.trait-option.active{background:var(--arcade-yellow);color:#111}
+.event-row{background:#0d1020;border:4px solid #000;box-shadow:4px 4px 0 #30365e}
+
+/* Game-like system messages */
+.toast{background:#111423;border:4px solid #000;box-shadow:6px 6px 0 var(--arcade-purple);color:#fff}
+.toast:before{color:var(--arcade-yellow);font:900 8px var(--ui-mono)}
+.reaction-message{
+  padding:12px 16px;
+  background:#0d1020;
+  border:4px solid #000;
+  box-shadow:6px 6px 0 var(--arcade-yellow);
+  color:#fff;
+  font-family:var(--ui-heavy);
+  font-size:13px;
+}
+.reaction-message:before{color:var(--arcade-green)}
+
+/* Effects remain pixel-frame animations, but read more strongly. */
+.incense-effect{transform:translate(-50%,0) scale(1.15)}
+.poop-effect{width:48px;height:44px}
+
+/* --- Day palette stays arcade, not soft / natural ----------------------- */
+body[data-theme="day"] .graveyard-scene{
+  background:
+    linear-gradient(rgba(77,105,169,.38) 2px,transparent 2px),
+    linear-gradient(90deg,rgba(77,105,169,.38) 2px,transparent 2px),
+    linear-gradient(#4762a1 0 43%,#315b4d 43% 53%,#39754b 53% 100%);
+  background-size:24px 24px,24px 24px,100% 100%;
+}
+body[data-theme="day"] .pixel-hill{background:#3c2ea1;opacity:.65}
+
+/* --- Mobile: always two graves per row ---------------------------------- */
+@media(max-width:1160px){
+  .site-header{grid-template-columns:1fr auto}
+  .grave-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:52px 14px}
+  .grave-plot{grid-template-rows:258px 48px 18px}
+  .grave-stage{height:258px;padding-left:2px;padding-right:2px}
+  .grave-stone{width:min(100%,196px)}
+  .grave-name{font-size:clamp(25px,2.45vw,34px)}
+  .stone-trait{font-size:11px;max-width:82px}
+}
+
+@media(max-width:760px){
+  .site-header{min-height:auto;padding:12px 10px 10px}
+  .brand-mark{width:42px;height:42px}
+  .brand strong{font-size:18px}
+  .hero{grid-template-columns:1fr;padding-top:34px}
+  .hero-copy{padding:16px 16px 24px 20px}
+  .hero-copy:after{font-size:6px}
+  .hero h1{font-size:38px}
+  .cemetery-toolbar{grid-template-columns:1fr;padding:9px}
+  .graveyard-scene{
+    min-height:560px;
+    padding:104px 7px 76px;
+    border-width:5px;
+    box-shadow:0 0 0 5px var(--arcade-yellow),0 0 0 9px #000,7px 7px 0 9px var(--arcade-purple);
+  }
+  .arcade-stage-hud{top:15px;width:88%;min-height:64px;padding:8px;grid-template-columns:auto 1fr}
+  .arcade-stage-hud b{font-size:15px}
+  .arcade-stage-hud em{display:none}
+  .grave-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:42px 8px}
+  .grave-plot{grid-template-rows:212px 43px 16px}
+  .grave-stage{height:212px;padding:0 2px 23px}
+  .grave-stone{width:min(100%,158px);height:174px;padding:43px 7px 27px;border-width:4px;box-shadow:5px 5px 0 var(--arcade-stone-dark),5px 10px 0 #090a09}
+  .grave-stone.skin-arch{height:184px}
+  .grave-stone.skin-slab{height:174px;padding-top:34px;padding-bottom:31px}
+  .grave-stone.skin-obelisk{height:197px;width:min(92%,146px);padding-top:55px}
+  .grave-stone:before{inset:7px;border-width:3px}
+  .grave-stone:after{left:11px;right:11px;top:18px;height:5px;box-shadow:0 5px 0 var(--arcade-stone-mid)}
+  .grave-stone.skin-obelisk:after{top:29px}
+  .grave-name{font-size:clamp(19px,5.2vw,24px);letter-spacing:.01em}
+  .grave-traits{margin-top:7px;gap:3px;min-height:34px}
+  .stone-trait{font-size:11px;max-width:68px;padding:3px 4px;border-width:2px}
+  .grave-counts{font-size:11px;gap:6px;margin-top:6px}
+  .grave-counts>span{min-width:45px;padding:3px;border-width:2px}
+  .grave-stone.skin-slab .grave-counts{gap:5px}
+  .grave-stone.skin-slab .grave-date{bottom:10px}
+  .grave-date{font-size:8px;bottom:9px}
+  .grave-actions{gap:5px;height:43px}
+  .grave-actions .pixel-btn{min-width:0;min-height:38px;width:50%;padding:6px 5px;font-size:10px;border-width:3px;box-shadow:3px 3px 0 #000}
+  .grave-meta{font-size:7px}
+  .grave-stage:after{left:4%;right:4%;height:18px;border-width:3px}
+  .profile-stone-wrap .grave-stone{width:190px}
+}
+
+@media(max-width:390px){
+  .grave-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:36px 6px}
+  .grave-plot{grid-template-rows:196px 40px 15px}
+  .grave-stage{height:196px;padding-bottom:20px}
+  .grave-stone{width:min(100%,145px);height:160px;padding:39px 6px 25px}
+  .grave-stone.skin-arch{height:169px}
+  .grave-stone.skin-slab{height:160px;padding-top:35px;padding-bottom:29px}
+  .grave-stone.skin-obelisk{height:181px;width:min(92%,135px);padding-top:50px}
+  .grave-name{font-size:18px}
+  .stone-trait{font-size:9px;max-width:60px}
+  .grave-counts{font-size:9px}
+  .grave-stone.skin-slab .grave-counts{gap:4px}
+  .grave-stone.skin-slab .grave-date{bottom:9px}
+  .grave-actions .pixel-btn{font-size:0}
+  .grave-actions .pixel-btn .px-icon{transform:scale(1.35)}
+  .hud-counters span{padding:6px 4px}
+  .hud-counters b{font-size:17px}
+}
+
+
+/* --- Arcade Pixel v1.1c visual refinement -------------------------------- */
+.site-header{
+  background:
+    linear-gradient(var(--arcade-yellow),var(--arcade-yellow)) 0 0/100% 6px no-repeat,
+    linear-gradient(90deg,var(--arcade-purple) 0 25%,var(--arcade-yellow) 25% 50%,var(--arcade-magenta) 50% 75%,var(--arcade-green) 75%) 0 100%/100% 5px no-repeat,
+    linear-gradient(180deg,#151933 0 16%,#101426 16% 100%);
+  box-shadow:0 0 0 4px #000 inset,0 7px 0 var(--arcade-purple-dark),0 11px 0 #000;
+}
+.site-header:before{
+  content:"P1 READY · INSERT MEMORY";
+  position:absolute;
+  right:clamp(16px,28vw,420px);
+  top:8px;
+  padding:2px 8px;
+  border:3px solid #000;
+  background:#0c1020;
+  color:var(--arcade-green);
+  font:900 8px/1 var(--ui-mono);
+  letter-spacing:.16em;
+  box-shadow:3px 3px 0 #000;
+}
+.brand-copy{position:relative;padding-top:2px}
+.brand-copy:after{
+  content:"PXL-01";
+  display:inline-block;
+  margin-left:8px;
+  padding:2px 4px;
+  border:2px solid #000;
+  background:var(--arcade-yellow);
+  color:#111;
+  font:900 8px/1 var(--ui-mono);
+  letter-spacing:.14em;
+  vertical-align:middle;
+  box-shadow:2px 2px 0 #000;
+}
+.brand small{display:block;margin-top:4px}
+.hud-counters{
+  position:relative;
+  box-shadow:5px 5px 0 #000,0 0 0 3px #000 inset;
+}
+.hud-counters:before{
+  content:"STATUS";
+  position:absolute;
+  left:8px;
+  top:-12px;
+  padding:1px 6px;
+  border:3px solid #000;
+  background:var(--arcade-yellow);
+  color:#111;
+  font:900 8px/1 var(--ui-mono);
+  letter-spacing:.14em;
+  box-shadow:2px 2px 0 #000;
+}
+.hud-counters span{position:relative;padding-top:13px}
+.hud-counters span small{display:block;margin-top:3px}
+.top-actions .pixel-btn{box-shadow:5px 5px 0 #000,0 0 0 2px #000 inset}
+.top-actions .pixel-btn.primary{background:var(--arcade-yellow)}
+
+.grave-grid{gap:58px 26px}
+.grave-plot{grid-template-rows:282px 56px 18px}
+.grave-stage{padding-bottom:24px}
+.grave-actions{
+  margin-top:2px;
+  gap:8px;
+  align-items:flex-start;
+  justify-content:center;
+}
+.grave-actions .pixel-btn{margin-top:0}
+
+/* Visually unify title height across the 3 stone silhouettes. */
+.grave-stone.skin-arch .grave-name{margin-top:4px}
+.grave-stone.skin-slab .grave-name{margin-top:12px}
+.grave-stone.skin-obelisk .grave-name{margin-top:6px}
+.grave-stone.skin-arch .grave-traits{margin-top:10px}
+.grave-stone.skin-slab .grave-traits{margin-top:9px}
+.grave-stone.skin-obelisk .grave-traits{margin-top:10px}
+
+/* Make the empty stage feel more like an attract screen. */
+.empty-state{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  padding:112px 20px 88px;
+}
+.empty-state:before{
+  content:"NO RECORD / PRESS START";
+  display:inline-block;
+  margin-bottom:8px;
+  padding:5px 10px;
+  border:4px solid #000;
+  background:var(--arcade-purple);
+  color:#fff;
+  font:900 10px/1 var(--ui-mono);
+  letter-spacing:.14em;
+  box-shadow:5px 5px 0 #000;
+}
+.empty-state:after{
+  content:"◀                ▶";
+  position:absolute;
+  left:50%;
+  bottom:22px;
+  transform:translateX(-50%);
+  color:var(--arcade-yellow);
+  font:900 12px/1 var(--ui-mono);
+  letter-spacing:.4em;
+  text-shadow:3px 3px 0 #000;
+  opacity:.9;
+}
+.empty-stone{
+  width:126px;
+  height:142px;
+  padding-top:61px;
+  box-shadow:8px 8px 0 #000,0 0 0 4px rgba(255,216,61,.12);
+}
+.empty-state h2{
+  margin:6px 0 4px;
+  font-size:46px;
+  color:#fff8dd;
+  text-shadow:4px 4px 0 #000,8px 8px 0 var(--arcade-purple);
+}
+.empty-state p{
+  max-width:520px;
+  color:#f1f3e6;
+  font-size:14px;
+  text-shadow:2px 2px 0 #000;
+}
+.empty-state .pixel-btn{
+  margin-top:6px;
+  min-width:210px;
+}
+
+@media(max-width:980px){
+  .site-header:before{display:none}
+}
+@media(max-width:760px){
+  .brand-copy:after{display:none}
+  .grave-plot{grid-template-rows:212px 46px 16px}
+  .grave-stage{padding-bottom:20px}
+  .grave-actions{gap:6px}
+  .grave-stone.skin-arch .grave-name{margin-top:2px}
+  .grave-stone.skin-slab .grave-name{margin-top:8px}
+  .grave-stone.skin-obelisk .grave-name{margin-top:3px}
+  .empty-state{padding:92px 14px 76px}
+  .empty-state:before{font-size:8px;padding:4px 8px}
+  .empty-stone{width:104px;height:122px;padding-top:53px}
+  .empty-state h2{font-size:34px}
+  .empty-state p{font-size:12px}
+}
+@media(max-width:390px){
+  .grave-plot{grid-template-rows:196px 44px 16px}
+  .grave-stage{padding-bottom:18px}
+  .grave-stone.skin-arch .grave-name{margin-top:1px}
+  .grave-stone.skin-slab .grave-name{margin-top:7px}
+  .grave-stone.skin-obelisk .grave-name{margin-top:2px}
+  .empty-state h2{font-size:30px}
+  .empty-state .pixel-btn{min-width:186px}
+}
+/* --- Arcade Pixel v1.1d polish pass -------------------------------------- */
+/* Lock the information block to one visual baseline across all 3 silhouettes. */
+.grave-stone .grave-name{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 40px;
+  min-height:40px;
+  margin:0!important;
+  padding:0 2px;
+}
+.grave-stone .grave-traits{
+  flex:0 0 42px;
+  min-height:42px;
+  margin-top:7px!important;
+  align-items:center;
+  align-content:center;
+}
+.grave-stone .grave-counts{
+  flex:0 0 auto;
+  margin-top:auto!important;
+}
+.grave-stone.skin-arch{padding-top:56px}
+.grave-stone.skin-slab{padding-top:42px}
+.grave-stone.skin-obelisk{padding-top:76px}
+
+/* One action rail for every grave: same baseline, same hit area, same gap. */
+.grave-plot{grid-template-rows:282px 54px 18px}
+.grave-stage{padding-bottom:25px}
+.grave-actions{
+  height:54px;
+  margin:0;
+  padding-top:4px;
+  align-items:flex-start;
+}
+.grave-actions .pixel-btn{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* Header reads more like a handheld console without becoming busier. */
+.site-header{
+  column-gap:20px;
+}
+.brand-mark{
+  box-shadow:6px 6px 0 #000,0 0 0 2px rgba(255,255,255,.08) inset;
+}
+.brand strong{line-height:1}
+.hud-counters span{
+  min-width:82px;
+  display:flex;
+  min-height:54px;
+  flex-direction:column;
+  justify-content:center;
+}
+.hud-counters b{font-size:24px;letter-spacing:.04em}
+.top-actions{
+  position:relative;
+  padding-top:3px;
+}
+.top-actions:after{
+  content:"A: SELECT   B: BACK";
+  position:absolute;
+  right:0;
+  bottom:-13px;
+  color:#858cb2;
+  font:900 7px/1 var(--ui-mono);
+  letter-spacing:.11em;
+  white-space:nowrap;
+}
+
+/* Empty cemetery = arcade attract screen, not a plain empty state. */
+.empty-state{
+  width:min(720px,92%);
+  margin:0 auto;
+  padding:94px 28px 84px;
+  border:4px solid rgba(115,85,255,.5);
+  background:
+    linear-gradient(rgba(115,85,255,.13) 2px,transparent 2px),
+    linear-gradient(90deg,rgba(115,85,255,.13) 2px,transparent 2px),
+    rgba(8,10,22,.54);
+  background-size:24px 24px,24px 24px,auto;
+  box-shadow:8px 8px 0 rgba(0,0,0,.55);
+}
+.empty-state:before{
+  content:"EMPTY SLOT 00 · PRESS START";
+  background:var(--arcade-yellow);
+  color:#111;
+}
+.empty-state:after{
+  content:"◆   SAVE THE LESSON   ◆";
+  bottom:18px;
+  color:var(--arcade-cyan);
+  letter-spacing:.12em;
+}
+.empty-stone{
+  position:relative;
+  width:132px;
+  height:148px;
+  padding-top:62px;
+  background:var(--arcade-stone);
+  box-shadow:8px 8px 0 var(--arcade-stone-dark),8px 14px 0 #080a09;
+}
+.empty-stone:before{
+  content:"";
+  position:absolute;
+  inset:10px;
+  border:4px solid var(--arcade-stone-dark);
+}
+.empty-state h2{letter-spacing:.03em}
+.empty-state p{margin:0 0 4px}
+.empty-state .pixel-btn{
+  min-width:220px;
+  min-height:48px;
+  background:var(--arcade-yellow);
+  color:#111;
+  text-shadow:none;
+}
+
+@media(max-width:760px){
+  .grave-stone .grave-name{flex-basis:32px;min-height:32px}
+  .grave-stone .grave-traits{flex-basis:32px;min-height:32px;margin-top:5px!important}
+  .grave-stone.skin-arch{padding-top:49px}
+  .grave-stone.skin-slab{padding-top:39px}
+  .grave-stone.skin-obelisk{padding-top:62px}
+  .grave-plot{grid-template-rows:212px 48px 16px}
+  .grave-stage{padding-bottom:21px}
+  .grave-actions{height:48px;padding-top:3px}
+  .grave-actions .pixel-btn{min-height:42px}
+  .top-actions:after{display:none}
+  .hud-counters span{min-width:0;min-height:48px}
+  .empty-state{width:94%;padding:80px 12px 72px}
+  .empty-state:after{font-size:8px;bottom:15px}
+}
+@media(max-width:390px){
+  .grave-stone .grave-name{flex-basis:28px;min-height:28px}
+  .grave-stone .grave-traits{flex-basis:29px;min-height:29px;margin-top:4px!important}
+  .grave-stone.skin-arch{padding-top:44px}
+  .grave-stone.skin-slab{padding-top:35px}
+  .grave-stone.skin-obelisk{padding-top:56px}
+  .grave-plot{grid-template-rows:196px 47px 15px}
+  .grave-stage{padding-bottom:19px}
+  .grave-actions{height:47px;padding-top:2px;gap:5px}
+  .grave-actions .pixel-btn{min-height:43px;min-width:0}
+  .grave-actions .pixel-btn .px-icon{transform:scale(1.45)}
+  .empty-state{padding:72px 10px 66px}
+  .empty-state:before{font-size:7px;letter-spacing:.1em}
+  .empty-state:after{content:"◆  KEEP THE LESSON  ◆";font-size:7px}
+  .empty-stone{width:98px;height:116px;padding-top:48px}
+  .empty-state h2{font-size:28px}
+  .empty-state .pixel-btn{min-width:174px;min-height:44px}
+}
+
+
+/* --- Arcade Pixel v1.1e compact first-screen refinement ----------------- */
+.site-header{
+  min-height:70px;
+  padding:10px clamp(12px,2.4vw,32px) 9px;
+}
+.brand{gap:11px}
+.brand-mark{width:44px;height:44px;border-width:4px;box-shadow:4px 4px 0 #000}
+.brand-mark:before{height:27px;left:15px;top:5px}
+.brand-mark:after{width:27px;left:5px;top:15px}
+.brand strong{font-size:21px}
+.brand small{font-size:8px;margin-top:2px}
+.brand-copy:after{font-size:7px;margin-left:6px}
+.site-header:before{top:5px;font-size:7px;right:clamp(16px,27vw,400px)}
+.hud-counters span{min-width:86px;padding:10px 9px 6px}
+.hud-counters b{font-size:20px}
+.hud-counters small{font-family:var(--ui-heavy);font-size:9px;line-height:1.15;letter-spacing:.02em;color:#fff;text-shadow:1px 1px 0 #000;white-space:nowrap}
+.hud-counters:before{top:-10px;font-size:7px}
+.top-actions{gap:7px}
+.top-actions .pixel-btn{min-height:39px;padding:7px 12px;font-size:11px}
+.top-actions .pixel-btn.icon-only{width:40px;padding:7px}
+
+.hero{
+  grid-template-columns:minmax(0,1.6fr) minmax(280px,.55fr);
+  gap:22px;
+  padding:27px 0 18px;
+}
+.hero-copy{
+  min-height:164px;
+  padding:13px 18px 12px 22px;
+  border-left-width:7px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.hero-copy .eyebrow{margin:0 0 8px}
+.hero-title-wrap{position:relative;display:flex;align-items:flex-end;gap:12px;min-width:0}
+.hero-title-wrap h1{margin:0;min-width:0;line-height:1}
+.hero-lead{
+  display:block;
+  width:max-content;
+  max-width:100%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:#fff8dd;
+  font-size:clamp(27px,2.55vw,39px);
+  line-height:1.05;
+  letter-spacing:-.02em;
+  text-shadow:3px 0 #000,-3px 0 #000,0 3px #000,0 -3px #000,5px 5px 0 var(--arcade-purple);
+}
+.hero-main{
+  display:block;
+  margin-top:4px;
+  color:var(--arcade-yellow);
+  font-size:clamp(35px,3.35vw,50px);
+  line-height:1.03;
+  white-space:nowrap;
+  text-shadow:4px 0 #000,-4px 0 #000,0 4px #000,0 -4px #000,6px 6px 0 var(--arcade-purple);
+}
+.hero-edit-btn{
+  flex:0 0 auto;
+  margin:0 0 4px;
+  padding:5px 8px;
+  border:3px solid #000;
+  background:#292c3d;
+  color:#fff;
+  box-shadow:3px 3px 0 #000;
+  font:900 9px/1 var(--ui-heavy);
+  cursor:pointer;
+}
+.hero-edit-btn:hover{background:var(--arcade-purple);outline:2px solid var(--arcade-yellow)}
+.hero-copy:after{right:13px;bottom:7px;font-size:6px}
+.hero-lead-editor{display:grid;grid-template-columns:minmax(180px,1fr) auto auto;gap:7px;margin-top:10px;max-width:650px}
+.hero-lead-editor input{min-height:38px;padding:7px 9px;font-size:13px}
+.hero-lead-editor .pixel-btn{min-height:38px;padding:6px 10px;font-size:10px}
+.today-card{min-height:164px;padding:16px 18px;box-shadow:6px 6px 0 var(--arcade-purple),9px 9px 0 #000}
+.today-card:before{font-size:8px}
+.today-card .eyebrow{margin:4px 0 7px;font-size:9px}
+.today-card h3{font-size:24px;margin:4px 0 5px}
+.today-card p{font-size:11px;line-height:1.45;margin:5px 0 10px}
+.today-card .pixel-btn{min-height:37px;padding:6px 10px;font-size:10px}
+
+.cemetery-toolbar{
+  min-height:58px;
+  margin-bottom:14px;
+  padding:8px 10px;
+}
+.search-box{height:47px}
+.search-label{font-size:7px}
+.search-prefix{font-size:19px}
+.search-box input{font-size:12px}
+.filter-chip{padding:6px 8px;font-size:9px}
+.scene-controls label{font-size:9px}
+.scene-controls select{min-height:38px;padding:5px 26px 5px 7px}
+
+.graveyard-scene{
+  min-height:560px;
+  padding:92px 18px 68px;
+}
+.arcade-stage-hud{
+  top:14px;
+  min-height:58px;
+  padding:7px 12px;
+  width:min(600px,72%);
+}
+.arcade-stage-hud b{font-size:20px}
+.arcade-stage-hud span,.arcade-stage-hud em{font-size:8px}
+.pixel-hill{top:18%;height:150px}
+.fence{top:215px}
+.grave-grid{gap:42px 24px}
+.grave-plot{grid-template-rows:252px 50px 16px}
+.grave-stage{height:252px;padding:0 7px 20px}
+.grave-actions{height:50px;margin-top:0}
+.grave-meta{font-size:8px}
+.local-note{margin:13px 0 0;font-size:10px}
+.site-footer{margin-top:20px}
+
+@media(max-width:1160px){
+  .hud-counters span{min-width:74px}
+  .hero{padding-top:24px}
+  .hero-main{font-size:clamp(32px,3.5vw,44px)}
+  .grave-plot{grid-template-rows:240px 48px 16px}
+  .grave-stage{height:240px}
+}
+@media(max-width:760px){
+  .site-header{padding:9px 8px 8px}
+  .hud-counters small{font-size:7px}
+  .hero{padding:20px 0 13px;gap:14px}
+  .hero-copy{min-height:142px;padding:12px 13px 10px 16px}
+  .hero-title-wrap{align-items:flex-start;gap:7px}
+  .hero-lead{font-size:clamp(22px,6vw,30px)}
+  .hero-main{font-size:clamp(27px,7vw,36px)}
+  .hero-edit-btn{font-size:0;width:29px;height:29px;padding:0;margin-top:2px}
+  .hero-edit-btn:after{content:"✎";font-size:13px}
+  .hero-lead-editor{grid-template-columns:1fr auto auto}
+  .today-card{min-height:132px;padding:13px}
+  .today-card h3{font-size:21px}
+  .cemetery-toolbar{margin-bottom:11px}
+  .graveyard-scene{min-height:520px;padding:88px 7px 64px}
+  .arcade-stage-hud{min-height:54px}
+  .grave-plot{grid-template-rows:200px 44px 15px}
+  .grave-stage{height:200px;padding-bottom:17px}
+  .grave-actions{height:44px}
+  .local-note{font-size:9px}
+}
+@media(max-width:390px){
+  .hero-lead{font-size:21px}
+  .hero-main{font-size:27px}
+  .hero-copy{min-height:134px}
+  .graveyard-scene{padding-top:84px}
+  .grave-plot{grid-template-rows:188px 42px 14px}
+  .grave-stage{height:188px;padding-bottom:15px}
+}
+
+  </style>
+</head>
+<body data-theme="night" data-weather="fog">
+  <div id="weatherLayer" class="weather-layer" aria-hidden="true">
+    <div class="stars"></div>
+    <div class="moon"></div>
+    <div class="fog fog-a"></div>
+    <div class="fog fog-b"></div>
+    <div class="rain"></div>
+  </div>
+
+  <header class="site-header">
+    <a class="brand" href="#graveyard" aria-label="返回甲方墓园">
+      <span class="brand-mark" aria-hidden="true"><i></i></span>
+      <span class="brand-copy">
+        <strong>甲方墓园</strong>
+        <small>CLIENT GRAVEYARD // ARCADE PIXEL V1.1E</small>
+      </span>
+    </a>
+    <div class="hud-counters" aria-label="墓园统计">
+      <span><b id="hudGraves">00</b><small>墓碑 · GRAVES</small></span>
+      <span><b id="hudIncense">000</b><small>上香 · INCENSE</small></span>
+      <span><b id="hudPoop">000</b><small>愤怒 · ANGER</small></span>
+    </div>
+    <nav class="top-actions" aria-label="主要功能">
+      <button class="pixel-btn primary" data-action="new-client">＋ 新建墓碑</button>
+      <a class="pixel-btn" href="#stats">墓园管理局</a>
+      <button class="pixel-btn icon-only" data-action="open-data" title="数据管理" aria-label="数据管理">▣</button>
+      <button class="pixel-btn icon-only" data-action="toggle-sound" title="环境音" aria-label="切换环境音">♪</button>
+    </nav>
+  </header>
+
+  <main id="app" class="app-shell">
+    <section id="graveyardView" class="view" data-view="graveyard">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">LOCAL · PRIVATE · PIXEL MEMORIAL</p>
+          <div class="hero-title-wrap">
+            <h1>
+              <span id="heroLead" class="hero-lead">有些项目结束了</span>
+              <span class="hero-main">有些甲方值得立块碑。</span>
+            </h1>
+            <button class="hero-edit-btn" type="button" data-action="edit-hero-lead" title="修改第一行标语">✎ 修改</button>
+          </div>
+          <div id="heroLeadEditor" class="hero-lead-editor" hidden>
+            <input id="heroLeadInput" maxlength="24" aria-label="第一行标语">
+            <button type="button" class="pixel-btn primary" data-action="save-hero-lead">保存</button>
+            <button type="button" class="pixel-btn" data-action="cancel-hero-lead">取消</button>
+          </div>
+        </div>
+        <aside id="todayMemorial" class="today-card" aria-live="polite"></aside>
+      </div>
+
+      <div class="cemetery-toolbar">
+        <label class="search-box">
+          <span class="search-label">SEARCH</span>
+          <span class="search-prefix">&gt;</span>
+          <input id="searchInput" type="search" placeholder="输入甲方、特质或往事…" autocomplete="off">
+        </label>
+        <div id="filterChips" class="filter-chips" aria-label="特质筛选"></div>
+        <div class="scene-controls">
+          <label>天色
+            <select id="themeSelect">
+              <option value="auto">自动</option>
+              <option value="day">白昼</option>
+              <option value="night">夜晚</option>
+            </select>
+          </label>
+          <label>天气
+            <select id="weatherSelect">
+              <option value="clear">晴</option>
+              <option value="fog">雾</option>
+              <option value="rain">雨</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <section class="graveyard-scene" aria-label="甲方墓园">
+        <div class="arcade-stage-hud" aria-hidden="true"><span>STAGE 01</span><b>GRAVEYARD SELECT</b><em>▶ CHOOSE A MEMORY</em></div>
+        <div class="pixel-hill hill-back"></div>
+        <div class="dead-tree tree-left" aria-hidden="true"><i></i><b></b></div>
+        <div class="dead-tree tree-right" aria-hidden="true"><i></i><b></b></div>
+        <div class="fence fence-left" aria-hidden="true"></div>
+        <div class="fence fence-right" aria-hidden="true"></div>
+        <div id="graveGrid" class="grave-grid"></div>
+        <div id="emptyState" class="empty-state" hidden>
+          <div class="empty-stone">RIP</div>
+          <h2>世界很美好</h2>
+          <p>这里还没有甲方。</p>
+          <button class="pixel-btn primary" data-action="new-client">＋ 建立第一座墓碑</button>
+        </div>
+      </section>
+
+      <p class="local-note">🔒 数据默认只保存在当前浏览器。建议使用昵称或代号，不要记录敏感个人信息。</p>
+    </section>
+
+    <section id="profileView" class="view" data-view="profile" hidden>
+      <div id="profileContent"></div>
+    </section>
+
+    <section id="statsView" class="view" data-view="stats" hidden>
+      <div class="page-head">
+        <a class="pixel-btn" href="#graveyard">← 返回墓园</a>
+        <div><p class="eyebrow">CEMETERY ADMINISTRATION</p><h1>墓园管理局</h1></div>
+      </div>
+      <div id="statsContent"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Bury the project. Keep the lesson.</p>
+    <p>本项目不需要账号或服务器；导出备份前请确认文件中不含敏感信息。</p>
+  </footer>
+
+  <div id="clientModal" class="modal" aria-hidden="true">
+    <div class="modal-panel editor-panel" role="dialog" aria-modal="true" aria-labelledby="clientModalTitle">
+      <div class="modal-head">
+        <div><p class="eyebrow">BURIAL RECORD</p><h2 id="clientModalTitle">建立墓碑</h2></div>
+        <button class="close-btn" data-action="close-client" aria-label="关闭">×</button>
+      </div>
+      <form id="clientForm">
+        <input id="clientId" type="hidden">
+        <div class="client-builder">
+          <aside class="builder-preview">
+            <p class="eyebrow">LIVE PREVIEW</p>
+            <h3>墓碑预览</h3>
+            <div id="clientPreview" class="client-preview-stage" aria-live="polite"></div>
+            <p class="preview-note">输入姓名、选择特质和皮肤，墓碑会实时更新。</p>
+          </aside>
+          <div class="builder-fields">
+            <div class="form-grid">
+              <label class="field"><span>甲方名称 / 代号 *</span><input id="clientName" maxlength="50" required placeholder="例：王总 / A客户 / 某项目负责人"><small>建议使用昵称或代号。</small></label>
+              <label class="field"><span>立碑时间 *</span><input id="burialDate" type="date" required></label>
+              <label class="field full"><span>甲方特质</span><div id="traitPicker" class="trait-picker"></div><div class="inline-input"><input id="customTrait" maxlength="18" placeholder="自定义特质"><button type="button" class="pixel-btn" data-action="add-trait">＋ 添加</button></div><small>可多选；墓碑上最多展示前 2 个。</small></label>
+              <label class="field full"><span>墓志铭</span><div class="inline-input"><input id="epitaph" maxlength="120" placeholder="例：需求虽逝，修改意见永存。"><button type="button" class="pixel-btn" data-action="random-epitaph">随机一句</button></div></label>
+              <label class="field"><span>墓碑皮肤</span><select id="stoneSkin"><option value="arch">拱顶石碑</option><option value="slab">方碑</option><option value="obelisk">纪念柱</option></select></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="editor-section">
+          <div class="section-title-row"><div><p class="eyebrow">PROJECT HISTORY</p><h3>接触事件 / 项目教训</h3></div><button type="button" class="pixel-btn" data-action="add-event-row">＋ 添加事件</button></div>
+          <div id="eventRows" class="event-rows"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="pixel-btn" data-action="close-client">取消</button>
+          <button type="submit" class="pixel-btn primary">保存并立碑</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="eventModal" class="modal" aria-hidden="true">
+    <div class="modal-panel small-panel" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle">
+      <div class="modal-head"><div><p class="eyebrow">NEW MEMORY</p><h2 id="eventModalTitle">记录一件往事</h2></div><button class="close-btn" data-action="close-event">×</button></div>
+      <form id="singleEventForm">
+        <input id="eventClientId" type="hidden"><input id="eventId" type="hidden">
+        <div class="form-grid single">
+          <label class="field"><span>日期 *</span><input id="eventDate" type="date" required></label>
+          <label class="field"><span>类型</span><select id="eventType"></select></label>
+          <label class="field full"><span>事件标题 *</span><input id="eventTitle" maxlength="60" required placeholder="例：第一次改需求"></label>
+          <label class="field full"><span>具体发生了什么？</span><textarea id="eventContent" rows="6" maxlength="1200" placeholder="记录事实、结果，以及你从中学到了什么。"></textarea></label>
+        </div>
+        <div class="modal-actions"><button type="button" class="pixel-btn" data-action="close-event">取消</button><button class="pixel-btn primary" type="submit">保存事件</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="dataModal" class="modal" aria-hidden="true">
+    <div class="modal-panel small-panel" role="dialog" aria-modal="true" aria-labelledby="dataTitle">
+      <div class="modal-head"><div><p class="eyebrow">LOCAL DATA</p><h2 id="dataTitle">数据管理</h2></div><button class="close-btn" data-action="close-data">×</button></div>
+      <div class="data-actions">
+        <button class="pixel-btn primary" data-action="export-data">⇩ 导出 JSON 备份</button>
+        <label class="pixel-btn file-label">⇧ 导入 JSON<input id="importFile" type="file" accept="application/json"></label>
+        <button class="pixel-btn" data-action="download-sample">⊙ 下载示例数据</button>
+        <button class="pixel-btn danger" data-action="clear-data">⚠ 清空全部数据</button>
+      </div>
+      <p class="fine-print">导入时会自动兼容旧版甲方墓园数据。清空浏览器网站数据也会删除墓园，请定期备份。</p>
+    </div>
+  </div>
+
+  <div id="onboardingModal" class="modal" aria-hidden="true">
+    <div class="modal-panel notice-panel" role="dialog" aria-modal="true" aria-labelledby="noticeTitle">
+      <div class="notice-icon">⚰</div>
+      <p class="eyebrow">BEFORE ENTERING</p>
+      <h2 id="noticeTitle">入园须知</h2>
+      <p>这是一个用于项目复盘和情绪释放的本地工具。默认不上传你填写的信息。</p>
+      <ul>
+        <li>建议使用昵称或代号。</li>
+        <li>不要记录手机号、地址、证件号码、银行账号、公司机密等敏感信息。</li>
+        <li>公开截图或分享前，请自行检查其中是否包含可识别个人的信息。</li>
+      </ul>
+      <button class="pixel-btn primary wide" data-action="accept-notice">我知道了，进入墓园</button>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal" aria-hidden="true">
+    <div class="modal-panel confirm-panel" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="notice-icon">?</div>
+      <h2 id="confirmTitle">确认操作</h2>
+      <p id="confirmText"></p>
+      <div class="modal-actions centered"><button class="pixel-btn" data-action="confirm-no">再想想</button><button id="confirmYes" class="pixel-btn danger">确认</button></div>
+    </div>
+  </div>
+
+  <div id="toastLayer" class="toast-layer" aria-live="polite" aria-atomic="true"></div>
+  <div id="effectLayer" class="effect-layer" aria-hidden="true"></div>
+  <script>
+// js/storage.js
+(function(){
+  const DATA_KEY='client_graveyard_v3';
+  const LEGACY_KEY='client_graveyard_v1';
+  const SETTINGS_KEY='client_graveyard_settings_v3';
+  const META_KEY='client_graveyard_meta_v3';
+  const memoryStore={};
+  function readItem(key){try{return localStorage.getItem(key)}catch(_){return Object.prototype.hasOwnProperty.call(memoryStore,key)?memoryStore[key]:null}}
+  function writeItem(key,value){try{localStorage.setItem(key,value);return true}catch(_){memoryStore[key]=String(value);return false}}
+
+  function uid(prefix='id'){
+    return (typeof crypto!=='undefined' && crypto.randomUUID) ? `${prefix}_${crypto.randomUUID()}` : `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,10)}`;
+  }
+  function today(){
+    const d=new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function esc(s){
+    return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  }
+  function clamp(n,min,max){return Math.min(max,Math.max(min,n));}
+  function safeJSON(raw,fallback){try{return raw?JSON.parse(raw):fallback}catch(_){return fallback}}
+  function normalizeEvent(e,i=0){
+    if(typeof e==='string') return {id:uid('event'),date:'',type:'其他',title:`往事 ${i+1}`,content:e,createdAt:new Date().toISOString()};
+    const content=(e?.content??e?.text??'').toString();
+    return {
+      id:e?.id||uid('event'),
+      date:e?.date||'',
+      type:e?.type||'其他',
+      title:e?.title||((content.split(/[。！!？?\n]/)[0]||`往事 ${i+1}`).slice(0,40)),
+      content,
+      createdAt:e?.createdAt||new Date().toISOString()
+    };
+  }
+  function normalizeTraits(x){
+    if(Array.isArray(x)) return [...new Set(x.map(v=>String(v).trim()).filter(Boolean))].slice(0,12);
+    if(typeof x==='string') return [...new Set(x.split(/[·|｜,，/]/).map(v=>v.trim()).filter(Boolean))].slice(0,12);
+    return [];
+  }
+  function normalizeClient(x={}){
+    let events=x.events;
+    if(typeof events==='string'){
+      events=events.trim()?events.split('\n').filter(Boolean).map((line,i)=>{
+        const m=line.match(/^(\d{4}-\d{2}-\d{2})[｜|]\s*(.*)$/);
+        return normalizeEvent(m?{date:m[1],content:m[2]}:{content:line},i);
+      }):[];
+    }
+    if(!Array.isArray(events)) events=[];
+    return {
+      id:x.id||uid('client'),
+      name:String(x.name||'未命名甲方').slice(0,50),
+      traits:normalizeTraits(x.traits??x.trait),
+      burialDate:x.burialDate||x.date||today(),
+      epitaph:String(x.epitaph||'').slice(0,120),
+      skin:['arch','slab','obelisk'].includes(x.skin)?x.skin:'arch',
+      events:events.map(normalizeEvent),
+      incense:Number(x.incense||0)||0,
+      poop:Number(x.poop||0)||0,
+      createdAt:x.createdAt||new Date().toISOString(),
+      lastViewedAt:x.lastViewedAt||null,
+      lastIncenseAt:x.lastIncenseAt||null,
+      lastPoopAt:x.lastPoopAt||null,
+      viewCount:Number(x.viewCount||0)||0,
+      stoneClicks:Number(x.stoneClicks||0)||0,
+      incenseSincePoop:Number(x.incenseSincePoop||0)||0
+    };
+  }
+  function loadClients(){
+    const current=safeJSON(readItem(DATA_KEY),null);
+    if(Array.isArray(current)) return current.map(normalizeClient);
+    const legacy=safeJSON(readItem(LEGACY_KEY),[]);
+    if(Array.isArray(legacy)&&legacy.length){
+      const migrated=legacy.map(normalizeClient);
+      saveClients(migrated);
+      return migrated;
+    }
+    return [];
+  }
+  function saveClients(clients){return writeItem(DATA_KEY,JSON.stringify(clients.map(normalizeClient)))}
+  function loadSettings(){
+    return Object.assign({noticeSeen:false,theme:'auto',weather:'fog',sound:false,selectedTrait:'',search:'',demoLoaded:false,heroLead:'有些项目结束了'},safeJSON(readItem(SETTINGS_KEY),{}));
+  }
+  function saveSettings(settings){return writeItem(SETTINGS_KEY,JSON.stringify(settings))}
+  function loadMeta(){return Object.assign({unlocked:[],rapidPoop:[],createdCount:0,lastDailyKey:''},safeJSON(readItem(META_KEY),{}))}
+  function saveMeta(meta){return writeItem(META_KEY,JSON.stringify(meta))}
+  function exportPayload(clients,settings,meta){
+    return {app:'Client Graveyard',version:3,exportedAt:new Date().toISOString(),clients:clients.map(normalizeClient),settings:{theme:settings.theme,weather:settings.weather,heroLead:settings.heroLead},meta:{unlocked:meta.unlocked||[]}};
+  }
+  function parseImport(text){
+    const parsed=JSON.parse(text);
+    const arr=Array.isArray(parsed)?parsed:parsed.clients;
+    if(!Array.isArray(arr)) throw new Error('INVALID_FORMAT');
+    return arr.map(normalizeClient);
+  }
+  function mergeClients(base,incoming){
+    const ids=new Set(base.map(x=>x.id));
+    return base.concat(incoming.map(x=>ids.has(x.id)?normalizeClient({...x,id:uid('client')}):x));
+  }
+  window.CGUtils={uid,today,esc,clamp,normalizeEvent,normalizeClient,normalizeTraits};
+  window.CGStorage={DATA_KEY,LEGACY_KEY,loadClients,saveClients,loadSettings,saveSettings,loadMeta,saveMeta,exportPayload,parseImport,mergeClients,readItem,writeItem};
+})();
+
+
+// js/events.js
+(function(){
+  const TYPES=['咨询','改稿','付款','拖款','临时需求','失联','离谱事件','正常合作','项目结束','其他'];
+  const TRAITS=['无限改稿','拖款','需求不明确','凌晨发消息','已读不回','临时加需求','预算很低','要求很多','审美独特','一句话推翻全部','还是第一版好','这个很简单','临时改方向','要求当天完成','长期失联','很难确认需求','预算砍半','临近截止才反馈'];
+  const EPITAPHS=[
+    '需求虽逝，修改意见永存。','这里埋着一次没有收到尾款的合作。','他说，这真的是最后一版。','生前最后一句话：再稍微调整一下。','甲方已远去，文件夹里还有 FINAL_18。','这里安息着被一句“感觉不对”推翻的三天。','愿下一次需求确认发生在开工之前。','预算有限，想法无限。','沟通结束了，经验留下了。','愿天堂没有“顺便再加一个小需求”。'
+  ];
+  const INCENSE_LINES=['吃一堑，长一智。','往事已矣，下次记得收定金。','愿天堂没有无限改稿。','这一炷香，敬当年年轻的自己。','愿下一位甲方懂得确认需求。','项目已经结束，经验留下了。','愿 FINAL 真的是 FINAL。','先确认需求，再开始干活。'];
+  const POOP_LINES=['情绪稳定 +1','功德 -1，心情 +10','你的愤怒已保存到本地。','这次就算了。','冷静，下一单先收定金。','系统已接收你的情绪。','建议下次先签合同。','💩 已成功命中需求变更记录。'];
+
+  function typeOptions(selected='其他'){
+    return TYPES.map(t=>`<option value="${CGUtils.esc(t)}" ${t===selected?'selected':''}>${CGUtils.esc(t)}</option>`).join('');
+  }
+  function makeEventRow(event={}){
+    const blank=!event.id&&!event.date&&!event.title&&!event.content&&!event.text;
+    const e=blank?{id:CGUtils.uid('event'),date:'',type:event.type||'其他',title:'',content:''}:CGUtils.normalizeEvent(event);
+    const row=document.createElement('div');
+    row.className='event-row'; row.dataset.id=e.id;
+    row.innerHTML=`
+      <input class="ev-date" type="date" value="${CGUtils.esc(e.date)}" aria-label="事件日期">
+      <select class="ev-type" aria-label="事件类型">${typeOptions(e.type)}</select>
+      <input class="ev-title" maxlength="60" value="${CGUtils.esc(e.title)}" placeholder="事件标题" aria-label="事件标题">
+      <textarea class="ev-content" maxlength="1200" rows="2" placeholder="发生了什么？学到了什么？" aria-label="事件内容">${CGUtils.esc(e.content)}</textarea>
+      <button type="button" class="pixel-btn danger remove-row" data-action="remove-event-row" aria-label="删除事件">×</button>`;
+    return row;
+  }
+  function collectEventRows(container){
+    return [...container.querySelectorAll('.event-row')].map(row=>({
+      id:row.dataset.id||CGUtils.uid('event'),
+      date:row.querySelector('.ev-date').value,
+      type:row.querySelector('.ev-type').value||'其他',
+      title:row.querySelector('.ev-title').value.trim(),
+      content:row.querySelector('.ev-content').value.trim(),
+      createdAt:new Date().toISOString()
+    })).filter(e=>e.date||e.title||e.content).map((e,i)=>({...e,title:e.title||`往事 ${i+1}`}));
+  }
+  window.CGContent={TYPES,TRAITS,EPITAPHS,INCENSE_LINES,POOP_LINES,typeOptions,makeEventRow,collectEventRows};
+})();
+
+
+// js/animations.js
+(function(){
+  let audioCtx=null, windSource=null, windGain=null;
+  function random(list){return list[Math.floor(Math.random()*list.length)]}
+  function centerOf(el){const r=el.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height*.56}}
+  function messageAt(text,x,y){
+    const n=document.createElement('div'); n.className='reaction-message'; n.textContent=text;
+    n.style.left=`${x}px`; n.style.top=`${Math.max(36,y-90)}px`; document.getElementById('effectLayer').appendChild(n);
+    setTimeout(()=>n.remove(),5400);
+  }
+  function incense(targetEl,line){
+    const p=centerOf(targetEl), layer=document.getElementById('effectLayer');
+    const fx=document.createElement('div');fx.className='incense-effect';fx.innerHTML='<span class="effect-candle"></span>';fx.style.left=`${p.x}px`;fx.style.top=`${p.y+30}px`;layer.appendChild(fx);
+    messageAt(line||random(CGContent.INCENSE_LINES),p.x,p.y);
+    ping(520,.08,.13); setTimeout(()=>fx.remove(),5400);
+  }
+  function poop(targetEl,line){
+    const p=centerOf(targetEl), layer=document.getElementById('effectLayer');
+    const fx=document.createElement('div');fx.className='poop-effect';fx.innerHTML='<span class="effect-poop"></span>';
+    const sx=Math.max(10,window.innerWidth*.12), sy=window.innerHeight+50;
+    const tx=p.x-sx, ty=p.y-sy;
+    fx.style.left=`${sx}px`;fx.style.top=`${sy}px`;fx.style.setProperty('--sx','0px');fx.style.setProperty('--sy','0px');fx.style.setProperty('--tx',`${tx}px`);fx.style.setProperty('--ty',`${ty}px`);
+    layer.appendChild(fx); setTimeout(()=>{fx.classList.add('poop-landed');targetEl.classList.add('shake');thud();setTimeout(()=>targetEl.classList.remove('shake'),420);messageAt(line||random(CGContent.POOP_LINES),p.x,p.y)},950);
+    setTimeout(()=>fx.remove(),5500);
+  }
+  function ensureAudio(){audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+  function ping(freq=440,vol=.05,dur=.12){
+    try{const c=ensureAudio(),o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.value=freq;g.gain.setValueAtTime(vol,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+dur)}catch(_){ }
+  }
+  function thud(){try{const c=ensureAudio(),o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.setValueAtTime(95,c.currentTime);o.frequency.exponentialRampToValueAtTime(42,c.currentTime+.16);g.gain.setValueAtTime(.12,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.2);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.2)}catch(_){ }}
+  function startAmbient(){
+    try{const c=ensureAudio(); if(windSource)return; const len=c.sampleRate*2, buffer=c.createBuffer(1,len,c.sampleRate), data=buffer.getChannelData(0);let last=0;for(let i=0;i<len;i++){const white=Math.random()*2-1;last=(last*.985)+(white*.015);data[i]=last*.9}windSource=c.createBufferSource();windSource.buffer=buffer;windSource.loop=true;windGain=c.createGain();windGain.gain.value=.035;const filter=c.createBiquadFilter();filter.type='lowpass';filter.frequency.value=650;windSource.connect(filter).connect(windGain).connect(c.destination);windSource.start()}catch(_){ }
+  }
+  function stopAmbient(){try{if(windSource){windSource.stop();windSource.disconnect();windSource=null}if(windGain){windGain.disconnect();windGain=null}}catch(_){ }}
+  function setAmbient(on){on?startAmbient():stopAmbient()}
+  window.CGAnimations={incense,poop,setAmbient,ping};
+})();
+
+
+// js/achievements.js
+(function(){
+  const defs=[
+    {id:'first_grave',icon:'碑',title:'第一座碑',desc:'建立第一个甲方墓碑。',test:s=>s.clients.length>=1},
+    {id:'let_go',icon:'香',title:'放下执念',desc:'累计上香 10 次。',test:s=>s.clients.reduce((n,c)=>n+c.incense,0)>=10},
+    {id:'emotion_master',icon:'怒',title:'情绪管理大师',desc:'累计扔大便 50 次。',test:s=>s.clients.reduce((n,c)=>n+c.poop,0)>=50},
+    {id:'experienced',icon:'录',title:'经验丰富',desc:'累计记录 20 条合作事件。',test:s=>s.clients.reduce((n,c)=>n+c.events.length,0)>=20},
+    {id:'researcher',icon:'研',title:'甲方研究专家',desc:'墓园中达到 10 座墓碑。',test:s=>s.clients.length>=10},
+    {id:'mature',icon:'静',title:'真正的成熟',desc:'给同一个甲方连续上香 10 次，中途没有扔大便。',test:s=>s.clients.some(c=>c.incenseSincePoop>=10)},
+    {id:'century',icon:'冠',title:'重点纪念',desc:'有一块墓碑累计收到 100 个大便。',test:s=>s.clients.some(c=>c.poop>=100)}
+  ];
+  function check(state,notify=true){
+    const unlocked=new Set(state.meta.unlocked||[]); let changed=false;
+    defs.forEach(d=>{if(!unlocked.has(d.id)&&d.test(state)){unlocked.add(d.id);changed=true;if(notify&&window.CGApp)CGApp.toast(`成就解锁：${d.title}`,`${d.icon} ${d.desc}`)}});
+    if(changed){state.meta.unlocked=[...unlocked];CGStorage.saveMeta(state.meta)}
+  }
+  function render(state){
+    const unlocked=new Set(state.meta.unlocked||[]);
+    return defs.map(d=>`<div class="achievement ${unlocked.has(d.id)?'unlocked':''}"><div class="achievement-icon">${d.icon}</div><div><h3>${CGUtils.esc(d.title)}</h3><p>${CGUtils.esc(d.desc)}</p></div></div>`).join('');
+  }
+  window.CGAchievements={defs,check,render};
+})();
+
+
+// js/graveyard.js
+(function(){
+  function level(poop){return poop>=100?4:poop>=60?3:poop>=30?2:poop>=10?1:0}
+  function traitText(c){const a=c.traits||[];if(!a.length)return '暂无特质';return a.slice(0,2).join(' · ')+(a.length>2?` +${a.length-2}`:'')}
+  function traitMarkup(c){
+    const a=c.traits||[];
+    if(!a.length)return '<span class="stone-trait">暂无特质</span>';
+    const visible=a.slice(0,2).map(t=>`<span class="stone-trait">${CGUtils.esc(t)}</span>`).join('');
+    return visible+(a.length>2?`<span class="stone-trait">+${a.length-2}</span>`:'');
+  }
+  function icon(type){return `<i class="px-icon ${type==='incense'?'px-candle':'px-poop'}" aria-hidden="true"></i>`}
+  function stoneMarkup(c,profile=false){
+    const lv=level(c.poop||0);
+    return `<div class="grave-stone skin-${CGUtils.esc(c.skin||'arch')}" data-client-stone="${CGUtils.esc(c.id)}" ${profile?`data-action="stone-tap" data-id="${CGUtils.esc(c.id)}"`:''}>
+      ${lv===4?'<span class="memorial-badge">重点纪念</span>':''}<span class="cracks"></span>
+      <div class="grave-name">${CGUtils.esc(c.name||'未命名')}</div>
+      <div class="grave-traits">${traitMarkup(c)}</div>
+      <div class="grave-counts"><span>${icon('incense')}${String(c.incense||0).padStart(2,'0')}</span><span>${icon('poop')}${String(c.poop||0).padStart(2,'0')}</span></div>
+      <div class="grave-date">EST. ${CGUtils.esc(c.burialDate||'---- -- --')}</div>
+    </div>`;
+  }
+  function cardMarkup(c){
+    const lv=level(c.poop||0);
+    return `<article class="grave-plot" data-id="${CGUtils.esc(c.id)}" data-level="${lv}">
+      <div class="grave-stage"><span class="select-arrow" aria-hidden="true">▶</span><span class="crow" aria-hidden="true"></span>${stoneMarkup(c)}</div>
+      <div class="grave-actions">
+        <button class="pixel-btn" data-action="react" data-type="incense" data-id="${CGUtils.esc(c.id)}">${icon('incense')}<span>上香</span></button>
+        <button class="pixel-btn" data-action="react" data-type="poop" data-id="${CGUtils.esc(c.id)}">${icon('poop')}<span>扔大便</span></button>
+      </div>
+      <div class="grave-meta">${String(c.events.length).padStart(2,'0')} LOG · ${String(c.viewCount||0).padStart(2,'0')} VISIT</div>
+    </article>`;
+  }
+  function filtered(state){
+    const q=(state.settings.search||'').trim().toLowerCase(), trait=state.settings.selectedTrait||'';
+    return state.clients.filter(c=>{
+      if(trait&&!c.traits.includes(trait))return false;
+      if(!q)return true;
+      const hay=[c.name,...c.traits,c.epitaph,...c.events.flatMap(e=>[e.type,e.title,e.content])].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  function renderFilters(state){
+    const counts={};state.clients.forEach(c=>c.traits.forEach(t=>counts[t]=(counts[t]||0)+1));
+    const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    document.getElementById('filterChips').innerHTML=`<button class="filter-chip ${state.settings.selectedTrait?'':'active'}" data-filter="">ALL ${state.clients.length}</button>`+top.map(([t,n])=>`<button class="filter-chip ${state.settings.selectedTrait===t?'active':''}" data-filter="${CGUtils.esc(t)}">${CGUtils.esc(t)} ${n}</button>`).join('');
+  }
+  function renderToday(state){
+    const el=document.getElementById('todayMemorial');
+    if(!state.clients.length){el.innerHTML='<p class="eyebrow">TODAY MEMORIAL</p><h3>墓园尚空</h3><p>愿今天也不需要建立新的墓碑。</p>';return}
+    const key=Number(CGUtils.today().replaceAll('-',''));const c=state.clients[key%state.clients.length];
+    const last=c.lastViewedAt?Math.max(0,Math.floor((Date.now()-new Date(c.lastViewedAt).getTime())/86400000)):null;
+    el.innerHTML=`<p class="eyebrow">TODAY MEMORIAL</p><h3>${CGUtils.esc(c.name)}</h3><p>${last===null?'还没有正式祭扫过。':last===0?'今天刚刚见过。':`距离上次查看 ${last} 天。`}</p><button class="pixel-btn" data-open-client="${CGUtils.esc(c.id)}">▶ 去看看老朋友</button>`;
+  }
+  function render(state){
+    renderFilters(state);renderToday(state);
+    const list=filtered(state),grid=document.getElementById('graveGrid'),empty=document.getElementById('emptyState');
+    grid.innerHTML=list.map(cardMarkup).join('');
+    empty.hidden=state.clients.length!==0;
+    if(state.clients.length&&list.length===0)grid.innerHTML='<div class="no-events" style="grid-column:1/-1">NO RESULT // 没有找到符合条件的墓碑。换个关键词或清除筛选试试。</div>';
+  }
+  function renderStats(state){
+    const totalEvents=state.clients.reduce((n,c)=>n+c.events.length,0),incense=state.clients.reduce((n,c)=>n+c.incense,0),poop=state.clients.reduce((n,c)=>n+c.poop,0);
+    const traitCounts={};state.clients.forEach(c=>c.traits.forEach(t=>traitCounts[t]=(traitCounts[t]||0)+1));const ranks=Object.entries(traitCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);const max=Math.max(1,...ranks.map(x=>x[1]));
+    const years={};state.clients.forEach(c=>{const y=(c.burialDate||'未知').slice(0,4);years[y]=(years[y]||0)+1});const yEntries=Object.entries(years).sort();const yMax=Math.max(1,...yEntries.map(x=>x[1]));
+    document.getElementById('statsContent').innerHTML=`
+      <div class="stats-grid"><div class="stat-card"><b>${String(state.clients.length).padStart(2,'0')}</b><span>GRAVES // 已安葬甲方</span></div><div class="stat-card"><b>${String(totalEvents).padStart(2,'0')}</b><span>LOGS // 合作事件</span></div><div class="stat-card"><b>${String(incense).padStart(3,'0')}</b><span>INCENSE // 累计上香</span></div><div class="stat-card"><b>${String(poop).padStart(3,'0')}</b><span>ANGER // 累计扔大便</span></div></div>
+      <div class="stats-panels"><section class="stats-panel"><h2>最常见甲方特质</h2><div class="trait-rank">${ranks.length?ranks.map(([t,n],i)=>`<div class="rank-row"><span>${i+1}. ${CGUtils.esc(t)}</span><div class="rank-bar"><div class="rank-fill" style="width:${n/max*100}%"></div></div><b>${n}</b></div>`).join(''):'<p class="fine-print">还没有足够的数据。</p>'}</div></section>
+      <section class="stats-panel"><h2>年度新增墓碑</h2><div class="year-bars">${yEntries.length?yEntries.map(([y,n])=>`<div class="year-col"><div class="year-bar" style="height:${30+n/yMax*145}px"><b>${n}</b></div>${CGUtils.esc(y)}</div>`).join(''):'<p class="fine-print">暂无数据。</p>'}</div></section></div>
+      <section class="stats-panel" style="margin-top:18px"><h2>墓园成就</h2><div class="achievement-grid">${CGAchievements.render(state)}</div></section>`;
+  }
+  window.CGGraveyard={level,traitText,traitMarkup,stoneMarkup,icon,render,renderStats};
+})();
+
+
+// js/profile.js
+(function(){
+  function renderTraits(c){return c.traits.length?c.traits.map(t=>`<span>${CGUtils.esc(t)}</span>`).join(''):'<span>暂无特质记录</span>'}
+  function sortedEvents(c){return [...c.events].sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999')||(a.createdAt||'').localeCompare(b.createdAt||''))}
+  function render(state,id){
+    const c=state.clients.find(x=>x.id===id), box=document.getElementById('profileContent');
+    if(!c){box.innerHTML='<div class="profile-shell"><a class="pixel-btn" href="#graveyard">← 返回墓园</a><div class="no-events" style="margin-top:20px">没有找到这块墓碑。</div></div>';return}
+    const lv=CGGraveyard.level(c.poop), events=sortedEvents(c);
+    box.innerHTML=`<div class="profile-shell">
+      <div class="profile-topbar"><a class="pixel-btn" href="#graveyard">← 返回墓园</a><div class="profile-actions"><button class="pixel-btn" data-action="edit-client" data-id="${CGUtils.esc(c.id)}">✎ 编辑资料</button><button class="pixel-btn" data-action="share-card" data-id="${CGUtils.esc(c.id)}">▧ 生成分享卡</button><button class="pixel-btn danger" data-action="delete-client" data-id="${CGUtils.esc(c.id)}">⚰ 彻底超度</button></div></div>
+      <section class="profile-hero">
+        <div class="profile-stone-wrap" data-level="${lv}"><div class="grave-plot" data-level="${lv}" style="width:270px"><div class="grave-stage"><span class="crow" aria-hidden="true"></span>${CGGraveyard.stoneMarkup(c,true)}</div></div></div>
+        <div class="profile-info"><p class="eyebrow">CLIENT ARCHIVE · ${CGUtils.esc(c.burialDate)}</p><h1>${CGUtils.esc(c.name)}</h1><div class="profile-traits">${renderTraits(c)}</div><blockquote class="epitaph">${CGUtils.esc(c.epitaph||'这里没有留下墓志铭，只有经验。')}</blockquote>
+          <div class="profile-stats"><div class="profile-stat"><b>${c.incense}</b><span>INCENSE // 上香次数</span></div><div class="profile-stat"><b>${c.poop}</b><span>ANGER // 扔大便次数</span></div><div class="profile-stat"><b>${c.events.length}</b><span>LOGS // 合作事件</span></div><div class="profile-stat"><b>${c.viewCount||0}</b><span>VISIT // 祭扫次数</span></div></div>
+          <div class="profile-reactions"><button class="pixel-btn primary" data-action="react" data-type="incense" data-id="${CGUtils.esc(c.id)}">${CGGraveyard.icon('incense')}<span>给它上香</span></button><button class="pixel-btn" data-action="react" data-type="poop" data-id="${CGUtils.esc(c.id)}">${CGGraveyard.icon('poop')}<span>给它扔大便</span></button></div>
+        </div>
+      </section>
+      <section class="timeline-section"><div class="timeline-head"><div><p class="eyebrow">PAST EVENTS</p><h2>此方往事</h2></div><button class="pixel-btn primary" data-action="new-event" data-id="${CGUtils.esc(c.id)}">＋ 记录新的往事</button></div>
+      ${events.length?`<div class="timeline">${events.map(e=>`<article class="timeline-item"><div class="timeline-date">${CGUtils.esc(e.date||'日期未记')}</div><div class="timeline-card"><div class="timeline-type">${CGUtils.esc(e.type)}</div><h3>${CGUtils.esc(e.title||'未命名事件')}</h3><p>${CGUtils.esc(e.content||'')}</p><div class="timeline-tools"><button data-action="edit-event" data-client-id="${CGUtils.esc(c.id)}" data-event-id="${CGUtils.esc(e.id)}">编辑</button><button data-action="delete-event" data-client-id="${CGUtils.esc(c.id)}" data-event-id="${CGUtils.esc(e.id)}">删除</button></div></div></article>`).join('')}</div>`:'<div class="no-events">这里还没有往事记录。项目经验值得被写下来，而不只是被气过去。</div>'}
+      </section>
+    </div>`;
+  }
+  window.CGProfile={render};
+})();
+
+
+// js/app.js
+(function(){
+  const state={clients:[],settings:{},meta:{},route:'graveyard',routeId:null,confirmAction:null};
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+  function save(){CGStorage.saveClients(state.clients);CGStorage.saveSettings(state.settings);CGStorage.saveMeta(state.meta)}
+  function toast(title,detail=''){const n=document.createElement('div');n.className='toast';n.innerHTML=`<strong>${CGUtils.esc(title)}</strong>${detail?`<small>${CGUtils.esc(detail)}</small>`:''}`;$('#toastLayer').appendChild(n);setTimeout(()=>n.remove(),4200)}
+  function openModal(id){const m=$(id);if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}}
+  function closeModal(id){const m=$(id);if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');if(!$('.modal.open'))document.body.style.overflow=''}}
+  function confirmAction(text,fn,yes='确认'){state.confirmAction=fn;$('#confirmText').textContent=text;$('#confirmYes').textContent=yes;openModal('#confirmModal')}
+
+  function applyScene(){
+    let theme=state.settings.theme||'auto';if(theme==='auto'){const h=new Date().getHours();theme=(h>=7&&h<18)?'day':'night'}
+    document.body.dataset.theme=theme;document.body.dataset.weather=state.settings.weather||'fog';$('#themeSelect').value=state.settings.theme||'auto';$('#weatherSelect').value=state.settings.weather||'fog';
+  }
+  function updateHud(){
+    const graves=state.clients.length,incense=state.clients.reduce((n,c)=>n+(c.incense||0),0),poop=state.clients.reduce((n,c)=>n+(c.poop||0),0);
+    const g=$('#hudGraves'),i=$('#hudIncense'),p=$('#hudPoop');
+    if(g)g.textContent=String(graves).padStart(2,'0');if(i)i.textContent=String(incense).padStart(3,'0');if(p)p.textContent=String(poop).padStart(3,'0');
+  }
+  function applyHeroLead(){
+    const lead=$('#heroLead');
+    if(lead)lead.textContent=(state.settings.heroLead||'有些项目结束了').trim()||'有些项目结束了';
+  }
+  function openHeroLeadEditor(){
+    const box=$('#heroLeadEditor'),input=$('#heroLeadInput');if(!box||!input)return;
+    input.value=(state.settings.heroLead||'有些项目结束了').trim()||'有些项目结束了';box.hidden=false;setTimeout(()=>{input.focus();input.select()},20);
+  }
+  function closeHeroLeadEditor(){const box=$('#heroLeadEditor');if(box)box.hidden=true}
+  function saveHeroLead(){
+    const input=$('#heroLeadInput');if(!input)return;const value=input.value.trim().slice(0,24)||'有些项目结束了';
+    state.settings.heroLead=value;CGStorage.saveSettings(state.settings);applyHeroLead();closeHeroLeadEditor();toast('标语已更新','只保存在当前浏览器。');
+  }
+  function parseRoute(){const raw=(location.hash||'#graveyard').slice(1);if(raw.startsWith('client/'))return ['profile',decodeURIComponent(raw.split('/')[1]||'')];if(raw==='stats')return ['stats',null];return ['graveyard',null]}
+  function renderRoute(){
+    updateHud();
+    const [route,id]=parseRoute();state.route=route;state.routeId=id;$$('.view').forEach(v=>v.hidden=true);
+    if(route==='profile'){$('#profileView').hidden=false;const c=state.clients.find(x=>x.id===id);if(c){c.lastViewedAt=new Date().toISOString();c.viewCount=(c.viewCount||0)+1;CGStorage.saveClients(state.clients)}CGProfile.render(state,id);window.scrollTo(0,0)}
+    else if(route==='stats'){$('#statsView').hidden=false;CGGraveyard.renderStats(state);window.scrollTo(0,0)}
+    else{$('#graveyardView').hidden=false;CGGraveyard.render(state)}
+  }
+  function refresh(){CGAchievements.check(state);renderRoute()}
+
+  function selectedTraits(){return $$('#traitPicker .trait-option.active').map(b=>b.dataset.trait)}
+  function renderTraitPicker(selected=[]){
+    const all=[...new Set([...CGContent.TRAITS,...selected])];$('#traitPicker').innerHTML=all.map(t=>`<button type="button" class="trait-option ${selected.includes(t)?'active':''}" data-trait="${CGUtils.esc(t)}">${CGUtils.esc(t)}</button>`).join('')
+  }
+  function renderClientPreview(){
+    const box=$('#clientPreview');if(!box)return;
+    const id=$('#clientId')?.value||'preview-client', existing=id!=='preview-client'?state.clients.find(x=>x.id===id):null;
+    const client={id:'preview-client',name:$('#clientName')?.value.trim()||'甲方代号',traits:selectedTraits(),burialDate:$('#burialDate')?.value||CGUtils.today(),skin:$('#stoneSkin')?.value||'arch',incense:existing?.incense||0,poop:existing?.poop||0,events:[]};
+    box.innerHTML=`<div class="grave-stage">${CGGraveyard.stoneMarkup(client)}</div>`;
+  }
+  function openClientEditor(id=null){
+    const c=id?state.clients.find(x=>x.id===id):null;$('#clientModalTitle').textContent=c?'编辑甲方档案':'建立墓碑';$('#clientId').value=c?.id||'';$('#clientName').value=c?.name||'';$('#burialDate').value=c?.burialDate||CGUtils.today();$('#epitaph').value=c?.epitaph||'';$('#stoneSkin').value=c?.skin||'arch';renderTraitPicker(c?.traits||[]);$('#eventRows').innerHTML='';(c?.events?.length?c.events:[{}]).forEach(e=>$('#eventRows').appendChild(CGContent.makeEventRow(e)));renderClientPreview();openModal('#clientModal');setTimeout(()=>$('#clientName').focus(),30)
+  }
+  function saveClientForm(ev){
+    ev.preventDefault();const id=$('#clientId').value,name=$('#clientName').value.trim();if(!name)return;
+    const existing=id?state.clients.find(x=>x.id===id):null;const client=CGUtils.normalizeClient({
+      ...(existing||{}),id:id||CGUtils.uid('client'),name,traits:selectedTraits(),burialDate:$('#burialDate').value||CGUtils.today(),epitaph:$('#epitaph').value.trim(),skin:$('#stoneSkin').value,events:CGContent.collectEventRows($('#eventRows')),createdAt:existing?.createdAt||new Date().toISOString()
+    });
+    if(existing){Object.assign(existing,client);toast('档案已更新',`${name} 的记录已经保存。`)}else{state.clients.push(client);state.meta.createdCount=(state.meta.createdCount||0)+1;toast('立碑完成',`${name} 已经进入墓园。`);if(state.clients.length===10)toast('彩蛋','系统检测到问题可能不全在甲方。')}
+    save();closeModal('#clientModal');location.hash=`#client/${encodeURIComponent(client.id)}`;CGAchievements.check(state);
+  }
+
+  function openEventEditor(clientId,eventId=null){
+    const c=state.clients.find(x=>x.id===clientId),e=c?.events.find(x=>x.id===eventId);if(!c)return;$('#eventModalTitle').textContent=e?'编辑往事':'记录一件往事';$('#eventClientId').value=clientId;$('#eventId').value=e?.id||'';$('#eventDate').value=e?.date||CGUtils.today();$('#eventType').innerHTML=CGContent.typeOptions(e?.type||'其他');$('#eventTitle').value=e?.title||'';$('#eventContent').value=e?.content||'';openModal('#eventModal');setTimeout(()=>$('#eventTitle').focus(),30)
+  }
+  function saveSingleEvent(ev){
+    ev.preventDefault();const c=state.clients.find(x=>x.id===$('#eventClientId').value);if(!c)return;const id=$('#eventId').value;const event=CGUtils.normalizeEvent({id:id||CGUtils.uid('event'),date:$('#eventDate').value,type:$('#eventType').value,title:$('#eventTitle').value.trim(),content:$('#eventContent').value.trim(),createdAt:new Date().toISOString()});if(id){const old=c.events.find(x=>x.id===id);Object.assign(old,event)}else c.events.push(event);save();closeModal('#eventModal');refresh();toast('往事已记录','经验留在这里，下次少踩一个坑。')
+  }
+
+  function react(id,type,button){
+    const c=state.clients.find(x=>x.id===id);if(!c)return;const target=(button.closest('.grave-plot')||button.closest('.profile-hero'))?.querySelector(`[data-client-stone="${CSS.escape(id)}"]`)||$(`[data-client-stone="${CSS.escape(id)}"]`);if(!target)return;
+    if(type==='incense'){c.incense++;c.incenseSincePoop=(c.incenseSincePoop||0)+1;c.lastIncenseAt=new Date().toISOString();CGAnimations.incense(target)}else{c.poop++;c.incenseSincePoop=0;c.lastPoopAt=new Date().toISOString();CGAnimations.poop(target);const now=Date.now();state.meta.rapidPoop=(state.meta.rapidPoop||[]).filter(t=>now-t<12000);state.meta.rapidPoop.push(now);if(state.meta.rapidPoop.length>=20){toast('差不多得了。','系统建议先保存体力处理下一单。');state.meta.rapidPoop=[]}}
+    save();CGAchievements.check(state);setTimeout(()=>renderRoute(),1100)
+  }
+
+  function deleteClient(id){const c=state.clients.find(x=>x.id===id);if(!c)return;confirmAction(`确定要彻底超度「${c.name}」吗？甲方资料、事件、蜡烛和大便记录都会永久删除。`,()=>{state.clients=state.clients.filter(x=>x.id!==id);save();location.hash='#graveyard';if(!state.clients.length)toast('你终于放下了。','墓园现在空空如也。')},'确认超度')}
+  function deleteEvent(clientId,eventId){const c=state.clients.find(x=>x.id===clientId),e=c?.events.find(x=>x.id===eventId);if(!c||!e)return;confirmAction(`删除「${e.title}」这条往事吗？`,()=>{c.events=c.events.filter(x=>x.id!==eventId);save();refresh()},'删除事件')}
+
+  function exportData(){const payload=CGStorage.exportPayload(state.clients,state.settings,state.meta),blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`甲方墓园备份_${CGUtils.today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);toast('备份已导出','JSON 文件只包含你的本地墓园数据。')}
+  function importData(file){if(!file)return;const r=new FileReader();r.onload=()=>{try{const incoming=CGStorage.parseImport(r.result);confirmAction(`检测到 ${incoming.length} 条记录。是否与当前墓园合并？`,()=>{state.clients=CGStorage.mergeClients(state.clients,incoming);save();refresh();toast('导入完成',`已合并 ${incoming.length} 条记录。`)},'合并导入')}catch(_){toast('导入失败','文件格式不是可识别的甲方墓园备份。')}$('#importFile').value=''};r.readAsText(file)}
+  function downloadSample(){const sample=[CGUtils.normalizeClient({name:'示例甲方',traits:['需求不明确','临时加需求'],burialDate:CGUtils.today(),epitaph:'需求虽逝，修改意见永存。',events:[{date:CGUtils.today(),type:'咨询',title:'第一次咨询',content:'这是示例数据，可以安全删除。'}]})];const blob=new Blob([JSON.stringify({version:3,clients:sample},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='client-graveyard-demo.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+  function clearAll(){confirmAction('确定清空全部墓园数据吗？这个操作不可恢复，建议先导出备份。',()=>{state.clients=[];save();location.hash='#graveyard';refresh();toast('你终于放下了。','所有墓碑已经离开墓园。')},'清空全部')}
+
+  function shareCard(id){
+    const c=state.clients.find(x=>x.id===id);if(!c)return;const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=675;const x=canvas.getContext('2d');x.imageSmoothingEnabled=false;x.fillStyle='#0d140f';x.fillRect(0,0,1200,675);x.fillStyle='#263a29';x.fillRect(0,390,1200,285);x.strokeStyle='#61705c';x.lineWidth=8;x.strokeRect(34,34,1132,607);x.fillStyle='#d7bd72';x.font='bold 24px monospace';x.fillText('CLIENT GRAVEYARD · 甲方墓园',72,92);x.fillStyle='#f1eddc';x.font='bold 76px serif';x.fillText(c.name.slice(0,12),72,205);x.font='24px monospace';x.fillStyle='#b2b9a8';x.fillText((c.traits.slice(0,3).join(' · ')||'暂无特质').slice(0,32),74,252);x.fillStyle='#161b16';x.fillRect(760,170,250,330);x.fillStyle='#767e70';x.fillRect(740,150,250,330);x.fillStyle='#222922';x.font='bold 42px serif';x.textAlign='center';x.fillText('RIP',865,255);x.font='bold 32px serif';x.fillText(c.name.slice(0,8),865,322);x.font='18px monospace';x.fillText(`🕯 ${c.incense}    💩 ${c.poop}`,865,378);x.textAlign='left';x.fillStyle='#e2d8b8';x.font='30px serif';wrapText(x,`“${c.epitaph||'这里没有墓志铭，只有经验。'}”`,72,365,580,44);x.fillStyle='#9ca691';x.font='20px monospace';x.fillText(`立碑：${c.burialDate}  ·  往事：${c.events.length} 条`,72,575);x.fillText('Bury the project. Keep the lesson.',72,615);const a=document.createElement('a');a.download=`甲方墓园_${c.name.replace(/[\\/:*?"<>|]/g,'_')}.png`;a.href=canvas.toDataURL('image/png');a.click();toast('分享卡已生成','公开分享前，请检查是否包含可识别个人的信息。')
+  }
+  function wrapText(ctx,text,x,y,maxWidth,lineHeight){let line='';for(const ch of text){const test=line+ch;if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,x,y);line=ch;y+=lineHeight}else line=test}if(line)ctx.fillText(line,x,y)}
+
+  function handleClick(ev){
+    const t=ev.target.closest('[data-action],[data-open-client],[data-filter],.trait-option,.grave-stone');if(!t)return;
+    if(t.matches('.trait-option')){t.classList.toggle('active');renderClientPreview();return}
+    if(t.dataset.filter!==undefined){state.settings.selectedTrait=t.dataset.filter;save();CGGraveyard.render(state);return}
+    if(t.dataset.openClient){location.hash=`#client/${encodeURIComponent(t.dataset.openClient)}`;return}
+    const action=t.dataset.action;
+    if(!action&&t.matches('.grave-stone')){const id=t.dataset.clientStone;if(id)location.hash=`#client/${encodeURIComponent(id)}`;return}
+    switch(action){
+      case'new-client':openClientEditor();break;case'edit-hero-lead':openHeroLeadEditor();break;case'save-hero-lead':saveHeroLead();break;case'cancel-hero-lead':closeHeroLeadEditor();break;case'close-client':closeModal('#clientModal');break;case'close-event':closeModal('#eventModal');break;case'open-data':openModal('#dataModal');break;case'close-data':closeModal('#dataModal');break;
+      case'add-trait':{const v=$('#customTrait').value.trim();if(v){const selected=selectedTraits();if(!selected.includes(v))selected.push(v);renderTraitPicker(selected);$('#customTrait').value='';renderClientPreview()}break}
+      case'random-epitaph':$('#epitaph').value=CGContent.EPITAPHS[Math.floor(Math.random()*CGContent.EPITAPHS.length)];renderClientPreview();break;
+      case'add-event-row':$('#eventRows').appendChild(CGContent.makeEventRow({date:CGUtils.today(),type:'其他'}));break;case'remove-event-row':t.closest('.event-row')?.remove();break;
+      case'edit-client':openClientEditor(t.dataset.id);break;case'new-event':openEventEditor(t.dataset.id);break;case'edit-event':openEventEditor(t.dataset.clientId,t.dataset.eventId);break;case'delete-event':deleteEvent(t.dataset.clientId,t.dataset.eventId);break;case'delete-client':deleteClient(t.dataset.id);break;
+      case'react':react(t.dataset.id,t.dataset.type,t);break;case'share-card':shareCard(t.dataset.id);break;
+      case'stone-tap':{const c=state.clients.find(x=>x.id===t.dataset.id);if(c){c.stoneClicks=(c.stoneClicks||0)+1;if(c.stoneClicks>=10){toast('这个需求其实挺简单的。','—— 某位熟悉的声音');c.stoneClicks=0}save()}break}
+      case'export-data':exportData();break;case'download-sample':downloadSample();break;case'clear-data':clearAll();break;
+      case'accept-notice':state.settings.noticeSeen=true;save();closeModal('#onboardingModal');break;
+      case'toggle-sound':state.settings.sound=!state.settings.sound;save();CGAnimations.setAmbient(state.settings.sound);toast(state.settings.sound?'环境音已开启':'环境音已关闭',state.settings.sound?'本地生成的低音量风声，不加载外部音频。':'安静一点也很好。');break;
+      case'confirm-no':state.confirmAction=null;closeModal('#confirmModal');break;
+    }
+  }
+
+  function init(){
+    state.clients=CGStorage.loadClients();state.settings=CGStorage.loadSettings();state.meta=CGStorage.loadMeta();
+    applyScene();applyHeroLead();$('#searchInput').value=state.settings.search||'';$('#eventType').innerHTML=CGContent.typeOptions();
+    document.addEventListener('click',handleClick);window.addEventListener('hashchange',renderRoute);$('#clientForm').addEventListener('submit',saveClientForm);$('#singleEventForm').addEventListener('submit',saveSingleEvent);
+    $('#searchInput').addEventListener('input',e=>{state.settings.search=e.target.value;CGStorage.saveSettings(state.settings);CGGraveyard.render(state)});$('#themeSelect').addEventListener('change',e=>{state.settings.theme=e.target.value;save();applyScene()});$('#weatherSelect').addEventListener('change',e=>{state.settings.weather=e.target.value;save();applyScene()});$('#importFile').addEventListener('change',e=>importData(e.target.files[0]));
+    ['clientName','burialDate','stoneSkin'].forEach(id=>$('#'+id)?.addEventListener('input',renderClientPreview));$('#stoneSkin')?.addEventListener('change',renderClientPreview);
+    $('#heroLeadInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveHeroLead()}else if(e.key==='Escape'){e.preventDefault();closeHeroLeadEditor()}});
+    $('#confirmYes').addEventListener('click',()=>{const fn=state.confirmAction;state.confirmAction=null;closeModal('#confirmModal');if(fn)fn()});
+    $$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m&&m.id!=='onboardingModal')closeModal('#'+m.id)}));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){const m=$('.modal.open:not(#onboardingModal)');if(m)closeModal('#'+m.id)}});
+    if(!location.hash)location.hash='#graveyard';CGAchievements.check(state,false);renderRoute();if(!state.settings.noticeSeen)setTimeout(()=>openModal('#onboardingModal'),120);
+    const h=new Date().getHours();let midnightSeen=false;try{midnightSeen=sessionStorage.getItem('cg_midnight')==='1'}catch(_){midnightSeen=false}if(h<5&&!midnightSeen){try{sessionStorage.setItem('cg_midnight','1')}catch(_){ }setTimeout(()=>toast('这么晚还在想甲方？','先保存好文件，明天再说。'),900)}
+  }
+  window.CGApp={state,toast,refresh,openClientEditor};
+  document.addEventListener('DOMContentLoaded',init);
+})();
+
+  </script>
+</body>
+</html>

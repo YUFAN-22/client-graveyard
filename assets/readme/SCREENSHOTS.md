@@ -1,1 +1,0 @@
-User-provided screenshots are being added in the README.

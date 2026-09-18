@@ -1,1 +1,0 @@
-The README gallery will use the author's supplied screenshots rather than dynamic WordPress mshots. Source images are available from the ChatGPT conversation and will be committed as static assets.

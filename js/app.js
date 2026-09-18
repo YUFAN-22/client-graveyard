@@ -70,6 +70,12 @@
   }
 
   function react(id,type,button){
+    const reactNow=Date.now();
+    if(button){
+      const previous=Number(button.dataset.reactAt||0);
+      if(reactNow-previous<450)return;
+      button.dataset.reactAt=String(reactNow);
+    }
     const c=state.clients.find(x=>x.id===id);if(!c)return;const target=(button.closest('.grave-plot')||button.closest('.profile-hero'))?.querySelector(`[data-client-stone="${CSS.escape(id)}"]`)||$(`[data-client-stone="${CSS.escape(id)}"]`);if(!target)return;
     if(type==='incense'){c.incense++;c.incenseSincePoop=(c.incenseSincePoop||0)+1;c.lastIncenseAt=new Date().toISOString();CGAnimations.incense(target)}else{c.poop++;c.incenseSincePoop=0;c.lastPoopAt=new Date().toISOString();CGAnimations.poop(target);const now=Date.now();state.meta.rapidPoop=(state.meta.rapidPoop||[]).filter(t=>now-t<12000);state.meta.rapidPoop.push(now);if(state.meta.rapidPoop.length>=20){toast('差不多得了。','系统建议先保存体力处理下一单。');state.meta.rapidPoop=[]}}
     save();CGAchievements.check(state);setTimeout(()=>renderRoute(),1100)
